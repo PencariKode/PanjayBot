@@ -1,0 +1,57 @@
+# Node modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+
+# Build outputs
+dist/
+build/
+coverage/
+.nyc_output/
+.tmp/
+.cache/
+.next/
+out/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE / editor
+.vscode/
+.idea/
+*.sublime-workspace
+
+# Session and credentials (bot-specific)
+PanjaySesi/
+creds.json
+app-state-sync-*.json
+device-list-*.json
+identity-key-*.json
+lid-mapping-*_reverse.json
+
+# Package artifacts
+*.tgz
+
+# Misc
+.sass-cache/
+bower_components/
