@@ -3,20 +3,24 @@
   "version": "1.0.0",
   "description": "Panjay Bot WhatsApp",
   "type": "module",
-  "main": "panjayset.js",
+  "main": "panjayset.ts",
   "scripts": {
-    "start": "node panjayset.js"
+    "start": "tsx panjayset.ts",
+    "typecheck": "tsc --noEmit",
+    "check:no-any": "rg -n \"(:\\s*any\\b|as\\s+any\\b|<any>|Array<any>)\" . -g \"*.ts\" -g \"*.d.ts\" -g \"!node_modules\" && exit 1 || exit 0"
   },
   "author": "Panjay",
   "license": "MIT",
   "dependencies": {
     "@whiskeysockets/baileys": "^7.0.0-rc.9",
     "axios": "^1.4.0",
+    "brat-canvas": "^1.0.30",
     "chalk": "^5.3.0",
     "figlet": "^1.6.0",
     "fluent-ffmpeg": "2.1.2",
     "fs": "^0.0.1-security",
     "https": "^1.0.0",
+    "mime-types": "^2.1.35",
     "node-webpmux": "3.2.1",
     "os": "0.1.2",
     "path": "^0.12.7",
@@ -24,5 +28,10 @@
     "readline": "1.3.0",
     "url": "^0.11.0",
     "util": "0.12.5"
+  },
+  "devDependencies": {
+    "@types/mime-types": "^2.1.4",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.3"
   }
 }
