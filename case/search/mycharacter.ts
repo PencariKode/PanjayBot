@@ -119,18 +119,21 @@ async function findCharacter(search: string): Promise<CharacterInfo | null> {
 
 export default async function handler(panjy: PluginContext) {
   const {
+    command,
     q,
     panjayreply,
     PanjayText,
+    PanjayInvalid,
     PanjayWait,
     PanjayImage,
   } = panjy;
 
   if (!q)
-    return panjayreply(
-      "⚠️ *Masukkan Nama Karakter Animenya!*\n\n" +
-        "Contoh: *.charinfo Yui Hirasawa*"
-    );
+    return PanjayInvalid({
+      title: "INPUT REQUIRED",
+      message: "Masukkan nama karakter anime yang ingin dicari.",
+      example: `${command} Yui Hirasawa`,
+    });
 
   await PanjayWait();
 

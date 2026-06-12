@@ -23,13 +23,18 @@ export const info: PluginInfo = {
 };
 
 export default async function handler(panjay: PluginContext) {
-  const { command, q, PanjayText, PanjayWait } = panjay;
+  const { command, q, PanjayText, PanjayInvalid, PanjayWait } = panjay;
 
   switch (command) {
     case "wp":
     case "webpilot":
       {
-        if (!q) return PanjayText("☘️ *Contoh:* webpilot Apa Itu Sc Bot Panjay");
+        if (!q)
+          return PanjayInvalid({
+            title: "INPUT REQUIRED",
+            message: "Masukkan pertanyaan atau topik pencarian WebPilot.",
+            example: `${command} Apa Itu Sc Bot Panjay`,
+          });
 
         PanjayWait();
 

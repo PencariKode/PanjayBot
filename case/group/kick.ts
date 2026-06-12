@@ -22,16 +22,18 @@ export const info: PluginInfo = {
 
 // Handler Utama
 export default async function handler(panjy: PluginContext) {
-  const { command, panjay, msg, len, replyJid, PanjayText } = panjy;
+  const { command, panjay, msg, len, replyJid, PanjayText, PanjayInvalid } = panjy;
 
   switch (command) {
     case "kick":
       {
         const quoted = msg.message?.extendedTextMessage?.contextInfo;
         if (!quoted?.participant)
-          return PanjayText(
-            "❌ *Gagal. Reply Pesan Anggota Yang Ingin Anda Keluarkan.*",
-          );
+          return PanjayInvalid({
+            title: "TARGET REQUIRED",
+            message: "Reply pesan anggota yang ingin dikeluarkan dari grup.",
+            example: `${command}`,
+          });
 
         const targetJid = quoted.participant;
 

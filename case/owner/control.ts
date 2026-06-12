@@ -64,7 +64,7 @@ export const info: PluginInfo = {
 };
 
 export default async function handler(panjy: PluginContext) {
-  const { command, q, PanjayText, isPanjay } = panjy;
+  const { command, q, PanjayText, PanjayInvalid, isPanjay } = panjy;
 
   if (!isPanjay) return PanjayText(globalThis.mess.creator);
 
@@ -81,10 +81,20 @@ export default async function handler(panjy: PluginContext) {
 
   switch (command) {
     case "enable": {
-      if (!target) return PanjayText("*Contoh: Enable Tiktok");
+      if (!target)
+        return PanjayInvalid({
+          title: "TARGET REQUIRED",
+          message: "Masukkan nama plugin yang ingin diaktifkan.",
+          example: `${command} tiktok`,
+        });
 
       const pluginData = commands.get(target);
-      if (!pluginData) return PanjayText("❌ Plugin Tidak Ditemukan.");
+      if (!pluginData)
+        return PanjayInvalid({
+          title: "TARGET NOT FOUND",
+          message: `Plugin ${target} tidak ditemukan.`,
+          example: `${command} tiktok`,
+        });
 
       state.disable = state.disable.filter((v) => v !== target);
       state.maintenance = state.maintenance.filter((v) => v !== target);
@@ -95,10 +105,20 @@ export default async function handler(panjy: PluginContext) {
     }
 
     case "disable": {
-      if (!target) return PanjayText("*Contoh: Disable Tiktok*");
+      if (!target)
+        return PanjayInvalid({
+          title: "TARGET REQUIRED",
+          message: "Masukkan nama plugin yang ingin dinonaktifkan.",
+          example: `${command} tiktok`,
+        });
 
       const pluginData = commands.get(target);
-      if (!pluginData) return PanjayText("❌ Plugin Tidak Ditemukan.");
+      if (!pluginData)
+        return PanjayInvalid({
+          title: "TARGET NOT FOUND",
+          message: `Plugin ${target} tidak ditemukan.`,
+          example: `${command} tiktok`,
+        });
 
       if (!state.disable.includes(target)) {
         state.disable.push(target);
@@ -112,10 +132,20 @@ export default async function handler(panjy: PluginContext) {
     }
 
     case "main": {
-      if (!target) return PanjayText("*Contoh: Main Tiktok");
+      if (!target)
+        return PanjayInvalid({
+          title: "TARGET REQUIRED",
+          message: "Masukkan nama plugin yang ingin masuk maintenance.",
+          example: `${command} tiktok`,
+        });
 
       const pluginData = commands.get(target);
-      if (!pluginData) return PanjayText("❌ Plugin Tidak Ditemukan.");
+      if (!pluginData)
+        return PanjayInvalid({
+          title: "TARGET NOT FOUND",
+          message: `Plugin ${target} tidak ditemukan.`,
+          example: `${command} tiktok`,
+        });
 
       if (!state.maintenance.includes(target)) {
         state.maintenance.push(target);
@@ -127,10 +157,20 @@ export default async function handler(panjy: PluginContext) {
     }
 
     case "unmain": {
-      if (!target) return PanjayText("*Contoh: Unmain Tiktok*");
+      if (!target)
+        return PanjayInvalid({
+          title: "TARGET REQUIRED",
+          message: "Masukkan nama plugin yang ingin keluar dari maintenance.",
+          example: `${command} tiktok`,
+        });
 
       const pluginData = commands.get(target);
-      if (!pluginData) return PanjayText("❌ Plugin Tidak Ditemukan.");
+      if (!pluginData)
+        return PanjayInvalid({
+          title: "TARGET NOT FOUND",
+          message: `Plugin ${target} tidak ditemukan.`,
+          example: `${command} tiktok`,
+        });
 
       state.maintenance = state.maintenance.filter((v) => v !== target);
 

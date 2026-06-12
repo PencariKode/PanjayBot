@@ -23,12 +23,17 @@ export const info: PluginInfo = {
 };
 
 export default async function handler(panjay: PluginContext) {
-  const { command, q, PanjayText, PanjayWait } = panjay;
+  const { command, q, PanjayText, PanjayInvalid, PanjayWait } = panjay;
 
   switch (command) {
     case "ai":
       {
-        if (!q) return PanjayText("☘️ *Contoh:* ai Apa itu JavaScript?");
+        if (!q)
+          return PanjayInvalid({
+            title: "INPUT REQUIRED",
+            message: "Masukkan pertanyaan untuk AI.",
+            example: `${command} Apa itu JavaScript?`,
+          });
 
         PanjayWait();
 

@@ -24,7 +24,7 @@ export const info: PluginInfo = {
 };
 
 export default async function handler(panjy: PluginContext) {
-  const { q, PanjayText } = panjy;
+  const { command, q, PanjayText, PanjayInvalid } = panjy;
 
   let targetPath = q.trim() || process.cwd();
   if (targetPath.includes("..")) {
@@ -101,7 +101,11 @@ export default async function handler(panjy: PluginContext) {
       return;
     }
 
-    PanjayText(`❌ Tipe path tidak didukung. Harap tentukan File atau Folder.`);
+    PanjayInvalid({
+      title: "INVALID PATH",
+      message: "Tipe path tidak didukung. Tentukan file atau folder.",
+      example: `${command} database`,
+    });
   } catch (error) {
     console.error("Error DIR Command:", error);
     PanjayText(

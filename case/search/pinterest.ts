@@ -80,17 +80,26 @@ async function pinterestSearch(query: string, limit = 20): Promise<PinterestResu
 }
 
 export default async function handler(panjy: PluginContext) {
-  const { q, PanjayText, panjay, replyJid, msg } = panjy;
+  const { command, q, PanjayText, PanjayInvalid, panjay, replyJid, msg } = panjy;
 
   if (!q) {
-    return PanjayText("*Contoh:* .Pin Ruridragon");
+    return PanjayInvalid({
+      title: "INPUT REQUIRED",
+      message: "Masukkan kata kunci gambar yang ingin dicari.",
+      example: `${command} Ruridragon`,
+    });
   }
 
   try {
     const [query, limitInput = "3"] = q.split("|").map((v) => v.trim());
     let limit = Math.min(parseInt(limitInput) || 3);
 
-    if (!query) return PanjayText("❌ Query kosong.");
+    if (!query)
+      return PanjayInvalid({
+        title: "INPUT REQUIRED",
+        message: "Query pencarian tidak boleh kosong.",
+        example: `${command} Ruridragon`,
+      });
 
     await PanjayText(`☕ Mencari Gambar *${query}*`);
 

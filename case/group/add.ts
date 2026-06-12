@@ -26,7 +26,7 @@ export const info: PluginInfo = {
 };
 
 export default async function handler(panjy: PluginContext) {
-  const { command, q, msg, panjay, replyJid, PanjayText } = panjy;
+  const { command, q, msg, panjay, replyJid, PanjayText, PanjayInvalid } = panjy;
 
   switch (command) {
     case "add":
@@ -34,7 +34,11 @@ export default async function handler(panjy: PluginContext) {
     case "invite": {
 
       if (!q)
-        return PanjayText("👻 Masukkan nomor yang ingin ditambahkan.\n*Contoh:* .add 6281234567890");
+        return PanjayInvalid({
+          title: "INPUT REQUIRED",
+          message: "Masukkan nomor yang ingin ditambahkan ke grup.",
+          example: `${command} 6281234567890`,
+        });
 
       // Normalisasi nomor
       let number = q.replace(/[^0-9]/g, "");
@@ -47,7 +51,11 @@ export default async function handler(panjy: PluginContext) {
 
       const isParticipant = participants.some((p) => p.id === target);
       if (isParticipant)
-        return PanjayText(`👻 Nomor @${number} sudah ada di dalam grup ini!`);
+        return PanjayInvalid({
+          title: "INVALID TARGET",
+          message: `Nomor @${number} sudah ada di dalam grup ini.`,
+          example: `${command} 6281234567890`,
+        });
 
       try {
         await panjay.groupParticipantsUpdate(replyJid, [target], "add");

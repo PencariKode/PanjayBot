@@ -37,6 +37,7 @@ export default async function handler(panjy: PluginContext) {
     replyJid,
     panjayreply,
     PanjayText,
+    PanjayInvalid,
     PanjayWait,
     PanjayVideo,
     PanjayImage,
@@ -72,7 +73,12 @@ export default async function handler(panjy: PluginContext) {
         // Logic Di Sini
 
         // Validasi
-        if (!q) return PanjayText("Contoh: .Publicai Apa Fungsi JavaScript");
+        if (!q)
+          return PanjayInvalid({
+            title: "INPUT REQUIRED",
+            message: "Masukkan pertanyaan untuk Public AI.",
+            example: `${command} Apa Fungsi JavaScript`,
+          });
 
         // Loading
         PanjayWait();

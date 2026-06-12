@@ -34,7 +34,7 @@ interface YoutubeDownloadResponse {
 
 // Handler Utama
 export default async function handler(panjy: PluginContext) {
-  const { command, q, panjay, msg, replyJid, PanjayText, PanjayWait } = panjy;
+  const { command, q, panjay, msg, replyJid, PanjayText, PanjayInvalid, PanjayWait } = panjy;
 
   const youtubeRegex = /(?:youtu\.be\/|v=|v\/|embed\/|shorts\/)([\w-]{11})/i;
 
@@ -42,10 +42,19 @@ export default async function handler(panjy: PluginContext) {
     case "yt":
     case "ytmp4":
       {
-        if (!q) return PanjayText(`⚠ *Mana Link YouTube-nya?*`);
+        if (!q)
+          return PanjayInvalid({
+            title: "INPUT REQUIRED",
+            message: "Masukkan link YouTube yang ingin diunduh.",
+            example: `${command} https://youtu.be/dQw4w9WgXcQ`,
+          });
 
         if (!youtubeRegex.test(q))
-          return PanjayText("❌ *Link YouTube Tidak Valid.*");
+          return PanjayInvalid({
+            title: "INVALID LINK",
+            message: "Link YouTube tidak valid.",
+            example: `${command} https://youtu.be/dQw4w9WgXcQ`,
+          });
 
         const tempDir = path.join(process.cwd(), "temp");
         if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });

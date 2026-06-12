@@ -12,6 +12,7 @@ import chalk from "chalk";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { botConfig } from "./config.ts";
+import { formatCommandResponse } from "./lib/response.ts";
 import type {
   HandlerMeta,
   MessageUpsert,
@@ -367,6 +368,15 @@ export default async function handler(
   const PanjayText = (text: string) =>
     panjay.sendMessage(replyJid, { text }, { quoted: msg });
 
+  const PanjayInvalid = (options: Parameters<typeof formatCommandResponse>[0]) =>
+    PanjayText(
+      formatCommandResponse({
+        prefix: usedPrefix ?? "",
+        command,
+        ...options,
+      }),
+    );
+
   const PanjayWait = () => panjayreply(globalThis.mess.wait);
 
   // Send Video
@@ -534,7 +544,19 @@ export default async function handler(
     await panjayreply(`${text}\n╰─〔 *${botConfig.branding.footer}* 〕`);
   }
 
-  if (!commands.has(command)) return;
+  if (!commands.has(command)) {
+    /*return PanjayText(
+      formatCommandResponse({
+        prefix: usedPrefix ?? "",
+        command,
+        title: "UNKNOWN COMMAND",
+        message: "Perintah tidak dikenali.",
+        details: "Gunakan menu untuk melihat daftar perintah.",
+      }),
+    );*/
+
+    return ;
+  }
 
   const pluginData = commands.get(command);
   if (!pluginData) return;
@@ -550,9 +572,13 @@ export default async function handler(
     if (!isPremium && !isPanjay) {
       if (!info.allowPrivate) {
         return PanjayText(
-          "⚠️ *Kamu Bukan User Premium!*\n\n" +
-            "Fitur ini tidak tersedia di Private Chat.\n\n" +
-            "Silakan upgrade ke Premium untuk akses penuh.",
+          formatCommandResponse({
+            prefix: usedPrefix ?? "",
+            command,
+            title: "PREMIUM REQUIRED",
+            message: "Fitur ini tidak tersedia di private chat untuk user non-premium.",
+            details: "Gunakan di grup atau upgrade ke premium untuk akses private chat.",
+          }),
         );
       }
     }
@@ -584,6 +610,7 @@ export default async function handler(
     senderJid,
     panjayreply,
     PanjayText,
+    PanjayInvalid,
     PanjayWait,
     PanjayVideo,
     PanjayImage,

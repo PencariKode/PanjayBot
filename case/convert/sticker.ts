@@ -34,7 +34,7 @@ async function downloadMedia(
 }
 
 export default async function handler(panjy: PluginContext) {
-  const { command, msg, len, panjay, replyJid, PanjayText } = panjy;
+  const { command, msg, len, panjay, replyJid, PanjayText, PanjayInvalid } = panjy;
 
   switch (command) {
     case "s":
@@ -63,9 +63,11 @@ export default async function handler(panjy: PluginContext) {
         }
 
         if (!media) {
-          return PanjayText(
-            "⚠️ Kirim atau Reply Gambar/Video Dengan Caption *Sticker*",
-          );
+          return PanjayInvalid({
+            title: "MEDIA REQUIRED",
+            message: "Kirim atau reply gambar/video untuk dijadikan sticker.",
+            examples: [`${command}`],
+          });
         }
 
         try {
@@ -83,7 +85,11 @@ export default async function handler(panjy: PluginContext) {
                 : 0;
 
             if (seconds > 5)
-              return PanjayText("❌ Maksimal Durasi Video 5 Detik!");
+              return PanjayInvalid({
+                title: "INVALID MEDIA",
+                message: "Durasi video maksimal 5 detik.",
+                example: `${command}`,
+              });
 
             const buffer = await downloadMedia(media, "video");
 

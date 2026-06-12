@@ -37,6 +37,7 @@ export default async function handler(panjy: PluginContext) {
     replyJid,
     panjayreply,
     PanjayText,
+    PanjayInvalid,
     PanjayWait,
     PanjayVideo,
     PanjayImage,

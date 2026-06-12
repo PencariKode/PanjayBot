@@ -34,7 +34,7 @@ async function downloadSticker(
 }
 
 export default async function handler(panjy: PluginContext) {
-  const { command, msg, panjay, replyJid, PanjayText } = panjy;
+  const { command, msg, panjay, replyJid, PanjayText, PanjayInvalid } = panjy;
 
   switch (command) {
     case "toimg":
@@ -44,7 +44,11 @@ export default async function handler(panjy: PluginContext) {
         const quotedMsg = quoted?.quotedMessage;
 
         if (!quotedMsg?.stickerMessage) {
-          return PanjayText("⚠️ Reply Sticker Dengan *Toimg*");
+          return PanjayInvalid({
+            title: "STICKER REQUIRED",
+            message: "Reply sticker yang ingin diubah menjadi gambar.",
+            examples: [`${command}`],
+          });
         }
 
         try {

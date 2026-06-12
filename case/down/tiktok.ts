@@ -30,7 +30,7 @@ interface TiktokDownloadResponse {
 }
 
 export default async function handler(panjay: PluginContext) {
-  const { command, q, PanjayText, PanjayWait, PanjayVideo } = panjay;
+  const { command, q, PanjayText, PanjayInvalid, PanjayWait, PanjayVideo } = panjay;
 
   const tiktokRegex = /^(https?:\/\/)?(www\.|vt\.|vm\.)?tiktok\.com\/.+/i;
 
@@ -38,10 +38,19 @@ export default async function handler(panjay: PluginContext) {
     case "tt":
     case "ttdl":
     case "tiktok": {
-      if (!q) return PanjayText("⚠ *Mana Link Tiktoknya?*");
+      if (!q)
+        return PanjayInvalid({
+          title: "INPUT REQUIRED",
+          message: "Masukkan link TikTok yang ingin diunduh.",
+          example: `${command} https://www.tiktok.com/@user/video/1234567890`,
+        });
 
       if (!tiktokRegex.test(q))
-        return PanjayText("❌ *Link TikTok Tidak Valid.*");
+        return PanjayInvalid({
+          title: "INVALID LINK",
+          message: "Link TikTok tidak valid.",
+          example: `${command} https://www.tiktok.com/@user/video/1234567890`,
+        });
 
       PanjayWait();
 
