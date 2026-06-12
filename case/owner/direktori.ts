@@ -24,20 +24,21 @@ export const info: PluginInfo = {
 };
 
 export default async function handler(panjy: PluginContext) {
-  const { q, PanjayText } = panjy;
+  const { command, q, PanjayText, PanjayInvalid } = panjy;
 
   let targetPath = q.trim() || process.cwd();
   if (targetPath.includes("..")) {
-    return PanjayText("❌ *Akses Direktori Di Luar Batas.*");
+    return PanjayInvalid({ title: "AKSES DITOLAK", message: "Akses Direktori Di Luar Batas." });
   }
 
   const resolvedPath = path.resolve(targetPath);
 
   try {
     if (!fs.existsSync(resolvedPath)) {
-      return PanjayText(
-        `❌ *Direktori atau File Tidak Ditemukan:* \`${targetPath}\``,
-      );
+      return PanjayInvalid({
+        title: "TIDAK DITEMUKAN",
+        message: `Direktori atau File Tidak Ditemukan: \`${targetPath}\``,
+      });
     }
 
     const stats = fs.statSync(resolvedPath);
@@ -101,11 +102,16 @@ export default async function handler(panjy: PluginContext) {
       return;
     }
 
-    PanjayText(`❌ Tipe path tidak didukung. Harap tentukan File atau Folder.`);
+    PanjayInvalid({
+      title: "INVALID PATH",
+      message: "Tipe path tidak didukung. Tentukan file atau folder.",
+      example: `${command} database`,
+    });
   } catch (error) {
     console.error("Error DIR Command:", error);
-    PanjayText(
-      `❌ Gagal membaca path. Pastikan path benar dan bot memiliki izin.\nDetail: ${error instanceof Error ? error.message : String(error)}`,
-    );
+    PanjayInvalid({
+      title: "GAGAL MEMBACA",
+      message: `Gagal membaca path. Pastikan path benar dan bot memiliki izin.\nDetail: ${error instanceof Error ? error.message : String(error)}`,
+    });
   }
 }

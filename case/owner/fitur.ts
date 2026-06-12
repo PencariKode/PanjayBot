@@ -49,21 +49,29 @@ export const info: PluginInfo = {
 };
 
 export default async function handler(panjy: PluginContext) {
-  const { command, q, msg, PanjayText, panjay, replyJid } = panjy;
+  const { command, q, msg, PanjayText, PanjayInvalid, panjay, replyJid } = panjy;
 
   switch (command) {
     case "addfitur":
       {
         if (!q)
-          return PanjayText(
-            "*Contoh: .Addfitur [Kategori] [Nama]*\n\n*Harap Reply Pesan Berisikan Kode*",
-          );
+          return PanjayInvalid({
+            title: "INPUT REQUIRED",
+            message: "Masukkan kategori dan nama fitur, lalu reply kode atau file .ts.",
+            usage: "[kategori] [nama]",
+            example: `${command} ai ai4chat`,
+          });
 
         const args = q.split(" ");
         const kategori = args[0]?.toLowerCase();
         let fileName = args[1];
 
-        if (!kategori) return PanjayText("❌ Masukkan Kategori.");
+        if (!kategori)
+          return PanjayInvalid({
+            title: "CATEGORY REQUIRED",
+            message: "Masukkan kategori fitur.",
+            example: `${command} ai ai4chat`,
+          });
 
         const existingFolders = fs
           .readdirSync(caseDir)
@@ -73,11 +81,12 @@ export default async function handler(panjy: PluginContext) {
           .map((f) => f.toLowerCase());
 
         if (!existingFolders.includes(kategori)) {
-          return PanjayText(
-            `❌ *Kategori Tidak Ditemukan.*\n\n*[+] Kategori Tersedia:*\n - ${existingFolders.join(
-              "\n - ",
-            )}`,
-          );
+          return PanjayInvalid({
+            title: "CATEGORY NOT FOUND",
+            message: `Kategori ${kategori} tidak ditemukan.`,
+            details: `Kategori tersedia: ${existingFolders.join(", ")}`,
+            example: `${command} ai ai4chat`,
+          });
         }
 
         const kategoriPath = path.join(caseDir, kategori);
@@ -85,7 +94,12 @@ export default async function handler(panjy: PluginContext) {
         const quoted = msg.message?.extendedTextMessage?.contextInfo;
         const quotedMsg = quoted?.quotedMessage;
 
-        if (!quotedMsg) return PanjayText("❌ *Harap Reply Kode atau File.ts*");
+        if (!quotedMsg)
+          return PanjayInvalid({
+            title: "MESSAGE REQUIRED",
+            message: "Reply kode atau file .ts yang ingin ditambahkan.",
+            example: `${command} ai ai4chat`,
+          });
 
         let code = "";
 
@@ -93,10 +107,19 @@ export default async function handler(panjy: PluginContext) {
           const doc = quotedMsg.documentMessage;
 
           const documentFileName = doc.fileName;
-          if (!documentFileName) return PanjayText("❌ *Nama file tidak valid*");
+          if (!documentFileName)
+            return PanjayInvalid({
+              title: "INVALID FILE",
+              message: "Nama file dokumen tidak valid.",
+              example: `${command} ai ai4chat`,
+            });
 
           if (!documentFileName.endsWith(".ts"))
-            return PanjayText("❌ *File Harus .ts*");
+            return PanjayInvalid({
+              title: "INVALID FILE",
+              message: "File fitur harus berformat .ts.",
+              example: `${command} ai ai4chat`,
+            });
 
           fileName = documentFileName.replace(".ts", "");
 
@@ -112,9 +135,19 @@ export default async function handler(panjy: PluginContext) {
           code =
             quotedMsg.conversation || quotedMsg.extendedTextMessage?.text || "";
 
-          if (!code) return PanjayText("❌ Pesan Reply Tidak Mengandung Teks.");
+          if (!code)
+            return PanjayInvalid({
+              title: "INVALID MESSAGE",
+              message: "Pesan yang direply tidak mengandung teks kode.",
+              example: `${command} ai ai4chat`,
+            });
 
-          if (!fileName) return PanjayText("❌ Masukkan Nama File.");
+          if (!fileName)
+            return PanjayInvalid({
+              title: "FILE NAME REQUIRED",
+              message: "Masukkan nama file fitur.",
+              example: `${command} ai ai4chat`,
+            });
         }
 
         fileName = fileName
@@ -126,7 +159,12 @@ export default async function handler(panjy: PluginContext) {
 
         const fullPath = path.join(kategoriPath, `${fileName}.ts`);
 
-        if (fs.existsSync(fullPath)) return PanjayText("⚠️ (File Sudah Ada.*");
+        if (fs.existsSync(fullPath))
+          return PanjayInvalid({
+            title: "FILE EXISTS",
+            message: `File ${fileName}.ts sudah ada.`,
+            example: `${command} ai ai4chat`,
+          });
 
         try {
           fs.writeFileSync(fullPath, code);
@@ -142,14 +180,23 @@ export default async function handler(panjy: PluginContext) {
       break;
 
     case "delfitur":
-      if (!q) return PanjayText("*Contoh: .Delfitur ai4chat.ts*");
+      if (!q)
+        return PanjayInvalid({
+          title: "TARGET REQUIRED",
+          message: "Masukkan nama file fitur yang ingin dihapus.",
+          example: `${command} ai4chat.ts`,
+        });
 
       let targetFile = q.trim();
 
       targetFile = targetFile.replace(/[^a-zA-Z0-9_.-]/g, "");
 
       if (!targetFile.endsWith(".ts"))
-        return PanjayText("❌ *Hanya Bisa Menghapus File.ts*");
+        return PanjayInvalid({
+          title: "INVALID FILE",
+          message: "Hanya file .ts yang bisa dihapus dari fitur.",
+          example: `${command} ai4chat.ts`,
+        });
 
       let foundPath = null;
 
@@ -175,7 +222,11 @@ export default async function handler(panjy: PluginContext) {
       }
 
       if (!foundPath)
-        return PanjayText("❌ *File Tidak Ditemukan Di Dalam Folder Case.*");
+        return PanjayInvalid({
+          title: "FILE NOT FOUND",
+          message: "File tidak ditemukan di dalam folder case.",
+          example: `${command} ai4chat.ts`,
+        });
 
       try {
         if (!fs.existsSync(trashDir)) {
@@ -205,7 +256,12 @@ export default async function handler(panjy: PluginContext) {
       break;
 
     case "getfitur":
-      if (!q) return PanjayText("*Contoh: Getfitur ai*");
+      if (!q)
+        return PanjayInvalid({
+          title: "TARGET REQUIRED",
+          message: "Masukkan nama command fitur yang ingin diambil.",
+          example: `${command} ai`,
+        });
 
       const targetCase = q.trim().toLowerCase();
 
@@ -245,7 +301,12 @@ export default async function handler(panjy: PluginContext) {
           if (foundFile) break;
         }
 
-        if (!foundFile) return PanjayText("❌ Fitur Tidak Ditemukan.");
+        if (!foundFile)
+          return PanjayInvalid({
+            title: "FEATURE NOT FOUND",
+            message: "Fitur tidak ditemukan.",
+            example: `${command} ai`,
+          });
 
         const fileBuffer = fs.readFileSync(foundFile);
 
@@ -295,8 +356,9 @@ export default async function handler(panjy: PluginContext) {
             };
           }
 
-          grouped[ext].files.push(file);
-          grouped[ext].size += stats.size;
+          const group = grouped[ext]!;
+          group.files.push(file);
+          group.size += stats.size;
           totalSize += stats.size;
         }
 
@@ -335,7 +397,12 @@ export default async function handler(panjy: PluginContext) {
       break;
 
     case "restore":
-      if (!q) return PanjayText("*Contoh: .Restore ai4chat.ts*");
+      if (!q)
+        return PanjayInvalid({
+          title: "TARGET REQUIRED",
+          message: "Masukkan nama file di folder temp yang ingin direstore.",
+          example: `${command} ai4chat.ts`,
+        });
 
       if (!fs.existsSync(trashDir))
         return PanjayText("📂 *Folder Temp Belum Ada.*");
@@ -345,7 +412,11 @@ export default async function handler(panjy: PluginContext) {
       const fullPath = path.join(trashDir, fileName);
 
       if (!fs.existsSync(fullPath))
-        return PanjayText("❌ *File Tidak Ditemukan Di Temp.*");
+        return PanjayInvalid({
+          title: "FILE NOT FOUND",
+          message: "File tidak ditemukan di folder temp.",
+          example: `${command} ai4chat.ts`,
+        });
 
       const ext = path.extname(fileName).toLowerCase();
       const fileBuffer = fs.readFileSync(fullPath);

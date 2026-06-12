@@ -119,18 +119,21 @@ async function findCharacter(search: string): Promise<CharacterInfo | null> {
 
 export default async function handler(panjy: PluginContext) {
   const {
+    command,
     q,
     panjayreply,
     PanjayText,
+    PanjayInvalid,
     PanjayWait,
     PanjayImage,
   } = panjy;
 
   if (!q)
-    return panjayreply(
-      "⚠️ *Masukkan Nama Karakter Animenya!*\n\n" +
-        "Contoh: *.charinfo Yui Hirasawa*"
-    );
+    return PanjayInvalid({
+      title: "INPUT REQUIRED",
+      message: "Masukkan nama karakter anime yang ingin dicari.",
+      example: `${command} Yui Hirasawa`,
+    });
 
   await PanjayWait();
 
@@ -138,9 +141,7 @@ export default async function handler(panjy: PluginContext) {
     const char = await findCharacter(q);
 
     if (!char)
-      return panjayreply(
-        "⚠️ *Karakter tidak ditemukan!*\n\nCoba cek ejaan nama-nya ya."
-      );
+      return PanjayInvalid({ title: "TIDAK DITEMUKAN", message: "Karakter tidak ditemukan!\n\nCoba cek ejaan nama-nya ya." });
 
     const imgUrl = char.image?.large || null;
 
@@ -180,6 +181,6 @@ export default async function handler(panjy: PluginContext) {
       await PanjayText(caption);
     }
   } catch (err) {
-    return panjayreply(`*Karakter Gak Ketemu Nih! Coba Pastikan Ejaan Namanya Bener*`);
+    return PanjayInvalid({ title: "TIDAK DITEMUKAN", message: "Karakter Gak Ketemu Nih! Coba Pastikan Ejaan Namanya Bener" });
   }
 }

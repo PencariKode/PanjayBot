@@ -39,7 +39,7 @@ interface WaifuResponse {
 }
 
 export default async function handler(panjy: PluginContext) {
-  const { PanjayText, PanjayWait, replyJid, panjay, msg } = panjy;
+  const { PanjayText, PanjayWait, replyJid, panjay, msg, PanjayInvalid } = panjy;
 
   await PanjayWait();
 
@@ -48,11 +48,11 @@ export default async function handler(panjy: PluginContext) {
     const { data } = await axios.get<WaifuResponse>(apiUrl, { timeout: 15000 });
 
     if (!data.items || data.items.length === 0) {
-      return PanjayText("⚠️ Gagal Mencari Waifu.");
+      return PanjayInvalid({ title: "GAGAL", message: "Gagal Mencari Waifu." });
     }
 
     const item = data.items[0];
-    if (!item?.url) return PanjayText("⚠️ Gagal Mencari Waifu.");
+    if (!item?.url) return PanjayInvalid({ title: "GAGAL", message: "Gagal Mencari Waifu." });
     const imageUrl = item.url;
     const source = item.source || '-';
     
@@ -75,8 +75,9 @@ export default async function handler(panjy: PluginContext) {
 
   } catch (error) {
     console.error('[Error] waifu:', error);
-    return PanjayText(
-      `⚠️ Terjadi Kesalahan: ${error instanceof Error ? error.message : String(error)}`,
-    );
+    return PanjayInvalid({
+      title: "ERROR",
+      message: `Terjadi Kesalahan: ${error instanceof Error ? error.message : String(error)}`
+    });
   }
 }

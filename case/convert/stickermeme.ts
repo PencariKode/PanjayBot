@@ -379,7 +379,7 @@ async function makeMemeSticker(
 }
 
 export default async function handler(panjy: PluginContext) {
-  const { command, q, msg, len, panjay, replyJid, PanjayText, PanjayWait } = panjy;
+  const { command, q, msg, len, panjay, replyJid, PanjayText, PanjayInvalid, PanjayWait } = panjy;
 
   switch (command) {
     case "smeme":
@@ -388,13 +388,20 @@ export default async function handler(panjy: PluginContext) {
         const { media, type, animated } = getMedia(msg.message);
 
         if (!media) {
-          return PanjayText(
-            "Kirim atau Reply Gambar/Video/Sticker Dengan Caption *.smeme teks atas|teks bawah*",
-          );
+          return PanjayInvalid({
+            title: "MEDIA REQUIRED",
+            message: "Kirim atau reply gambar, video, atau sticker untuk dibuat meme.",
+            example: `${command} PANJAY|Keren Banget`,
+          });
         }
 
         if (!q?.trim()) {
-          return PanjayText("Contoh: *.smeme PANJAY|Keren Banget*");
+          return PanjayInvalid({
+            title: "INPUT REQUIRED",
+            message: "Masukkan teks atas dan/atau teks bawah untuk sticker meme.",
+            usage: "teks atas|teks bawah",
+            example: `${command} PANJAY|Keren Banget`,
+          });
         }
 
         const seconds =
@@ -405,7 +412,11 @@ export default async function handler(panjy: PluginContext) {
         await PanjayWait();
 
         if (animated && seconds > 5) {
-          return PanjayText("Maksimal Durasi Video/Sticker 5 Detik!");
+          return PanjayInvalid({
+            title: "INVALID MEDIA",
+            message: "Durasi video atau sticker animasi maksimal 5 detik.",
+            example: `${command} PANJAY|Keren Banget`,
+          });
         }
 
         // if (animated) {
@@ -415,7 +426,12 @@ export default async function handler(panjy: PluginContext) {
 
         try {
           const { top, bottom } = parseText(q);
-          if (!type) return PanjayText("Media tidak valid.");
+          if (!type)
+            return PanjayInvalid({
+              title: "INVALID MEDIA",
+              message: "Media tidak valid untuk dibuat sticker meme.",
+              example: `${command} PANJAY|Keren Banget`,
+            });
 
 
 
@@ -439,7 +455,7 @@ export default async function handler(panjy: PluginContext) {
           );
         } catch (err) {
           console.error("Sticker Meme Error:", err);
-          return PanjayText("Gagal Membuat Sticker Meme.");
+          return PanjayInvalid({ title: "GAGAL", message: "Gagal Membuat Sticker Meme." });
         }
       }
       break;

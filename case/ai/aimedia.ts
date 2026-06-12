@@ -103,7 +103,7 @@ async function downloadImage(
 }
 
 export default async function handler(panjy: PluginContext) {
-  const { command, msg, panjay, replyJid, PanjayText, PanjayWait, len } = panjy;
+  const { command, msg, panjay, replyJid, PanjayText, PanjayInvalid, PanjayWait, len } = panjy;
 
   switch (command) {
     case "hd":
@@ -114,7 +114,11 @@ export default async function handler(panjy: PluginContext) {
       const imageMessage = quotedMsg?.imageMessage ?? msg.message?.imageMessage;
 
       if (!imageMessage) {
-        return PanjayText("⚠️ Reply / Kirim Gambar Dengan Caption *.hd*");
+        return PanjayInvalid({
+          title: "IMAGE REQUIRED",
+          message: "Kirim atau reply gambar yang ingin ditingkatkan.",
+          examples: [`${command}`],
+        });
       }
 
       PanjayWait();
@@ -137,7 +141,7 @@ export default async function handler(panjy: PluginContext) {
         );
       } catch (err) {
         console.error("Enhancer Error:", err);
-        return PanjayText("❌ Gagal Meningkatkan Gambar.");
+        return PanjayInvalid({ title: "GAGAL", message: "Gagal Meningkatkan Gambar." });
       }
 
       break;

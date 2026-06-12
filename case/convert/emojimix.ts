@@ -24,16 +24,18 @@ export const info: PluginInfo = {
 };
 
 export default async function handler(panjy: PluginContext) {
-  const { command, q, msg, panjay, replyJid, PanjayText } = panjy;
+  const { command, q, msg, panjay, replyJid, PanjayText, PanjayInvalid } = panjy;
 
   switch (command) {
     case "emojimix":
     case "mix": {
 
       if (!q)
-        return PanjayText(
-          `👻 Format salah!\n\n*Cara pakai:*\n.emojimix 😭+🔥\n.emojimix 😭 🔥\n.emojimix 😭🔥`
-        );
+        return PanjayInvalid({
+          title: "INPUT REQUIRED",
+          message: "Masukkan dua emoji yang ingin digabungkan.",
+          examples: [`${command} <emoji1>+<emoji2>`, `${command} <emoji1> <emoji2>`],
+        });
 
       // Parse emoji pakai Intl.Segmenter
       const input = q.replace(/\+/g, "").replace(/\s/g, "");
@@ -41,11 +43,20 @@ export default async function handler(panjy: PluginContext) {
       const emojis = Array.from(segmenter.segment(input)).map((s) => s.segment);
 
       if (emojis.length < 2)
-        return PanjayText("👻 Masukkan minimal 2 emoji!\n*Contoh:* .emojimix 😭🔥");
+        return PanjayInvalid({
+          title: "INPUT REQUIRED",
+          message: "Masukkan minimal dua emoji.",
+          example: `${command} <emoji1>+<emoji2>`,
+        });
 
       const emoji1 = emojis[0];
       const emoji2 = emojis[1];
-      if (!emoji1 || !emoji2) return PanjayText("👻 Masukkan minimal 2 emoji!");
+      if (!emoji1 || !emoji2)
+        return PanjayInvalid({
+          title: "INPUT REQUIRED",
+          message: "Masukkan minimal dua emoji.",
+          example: `${command} <emoji1>+<emoji2>`,
+        });
 
       await panjay.sendMessage(replyJid, { react: { text: "⏳", key: msg.key } });
 
@@ -146,7 +157,7 @@ export default async function handler(panjy: PluginContext) {
         ) {
           PanjayText(`👻 Kombinasi ${emoji1} + ${emoji2} belum ada. Coba kombinasi lain!`);
         } else {
-          PanjayText(`👻 Gagal memproses emojimix!\n${message}`);
+          PanjayInvalid({ title: "GAGAL", message: `Gagal memproses emojimix!\n${message}` });
         }
       } finally {
         // Cleanup tmp files

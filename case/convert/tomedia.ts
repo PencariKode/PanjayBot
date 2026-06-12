@@ -22,7 +22,16 @@ export const info: PluginInfo = {
 async function downloadSticker(
   message: Parameters<typeof downloadContentFromMessage>[0],
 ): Promise<Buffer> {
-  const stream = await downloadContentFromMessage(message, "sticker");
+  // Fix getaddrinfo ENOTFOUND a.whatsapp.net
+  if (message.url && message.url.includes("a.whatsapp.net")) {
+    message.url = message.url.replace("a.whatsapp.net", "mmg.whatsapp.net");
+  }
+
+  const stream = await downloadContentFromMessage(
+    message,
+    "sticker",
+    { host: "mmg.whatsapp.net" }
+  );
 
   let buffer = Buffer.from([]);
 
@@ -34,7 +43,7 @@ async function downloadSticker(
 }
 
 export default async function handler(panjy: PluginContext) {
-  const { command, msg, panjay, replyJid, PanjayText } = panjy;
+  const { command, msg, panjay, replyJid, PanjayText, PanjayInvalid } = panjy;
 
   switch (command) {
     case "toimg":
@@ -44,17 +53,21 @@ export default async function handler(panjy: PluginContext) {
         const quotedMsg = quoted?.quotedMessage;
 
         if (!quotedMsg?.stickerMessage) {
-          return PanjayText("⚠️ Reply Sticker Dengan *Toimg*");
+          return PanjayInvalid({
+            title: "STICKER REQUIRED",
+            message: "Reply sticker yang ingin diubah menjadi gambar.",
+            examples: [`${command}`],
+          });
         }
 
         try {
           const buffer = await downloadSticker(quotedMsg.stickerMessage);
 
-          let out: Buffer<ArrayBufferLike> = Buffer.alloc(0);
+          let out: Buffer = Buffer.alloc(0);
 
           // Convert sticker to image using ffmpeg
           // So we dont need sharp anymore.
-          out = await new Promise<Buffer<ArrayBufferLike>>((resolve, reject) => {
+          out = await new Promise<Buffer>((resolve, reject) => {
             const proc = spawn("ffmpeg", [
               "-i", "pipe:0",
               "-vcodec", "png",
@@ -100,7 +113,7 @@ export default async function handler(panjy: PluginContext) {
           });
         } catch (err) {
           console.error("ToImg Error:", err);
-          return PanjayText("❌ Gagal Convert Sticker.");
+          return PanjayInvalid({ title: "GAGAL", message: "Gagal Convert Sticker." });
         }
       }
       break;

@@ -39,13 +39,18 @@ interface YoutubeSearchResponse {
 }
 
 export default async function handler(panjy: PluginContext) {
-  const { command, q, PanjayText, PanjayWait, PanjayImage } = panjy;
+  const { command, q, PanjayText, PanjayInvalid, PanjayWait, PanjayImage } = panjy;
 
   switch (command) {
     case "ytsearch":
     case "yts":
     case "cariyt": {
-      if (!q) return PanjayText("🔍 *Contoh:* .ytsearch alan walker faded");
+      if (!q)
+        return PanjayInvalid({
+          title: "INPUT REQUIRED",
+          message: "Masukkan kata kunci video YouTube yang ingin dicari.",
+          example: `${command} alan walker faded`,
+        });
 
       PanjayWait();
 
@@ -57,7 +62,7 @@ export default async function handler(panjy: PluginContext) {
         const json = (await res.json()) as YoutubeSearchResponse;
 
         if (!json.status || !json.result?.length)
-          return PanjayText("⚠️ *Tidak Ada Hasil Ditemukan.*");
+          return PanjayInvalid({ title: "TIDAK DITEMUKAN", message: "Tidak Ada Hasil Ditemukan." });
 
         const results = json.result.slice(0, 5); // ambil 5 teratas
 

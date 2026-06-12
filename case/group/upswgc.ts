@@ -26,7 +26,7 @@ export const info: PluginInfo = {
 };
 
 export default async function handler(panjy: PluginContext) {
-  const { command, q, msg, panjay, replyJid, len, PanjayText } = panjy;
+  const { command, q, msg, panjay, replyJid, len, PanjayText, PanjayInvalid } = panjy;
 
   switch (command) {
     case "upsw":
@@ -36,7 +36,11 @@ export default async function handler(panjy: PluginContext) {
       // Validasi Reply Media
       const quotedMsg = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
       if (!quotedMsg)
-        return PanjayText(`👻 Reply media (Gambar/Video/Audio) yang ingin dijadikan Status Grup`);
+        return PanjayInvalid({
+          title: "MEDIA REQUIRED",
+          message: "Reply media gambar, video, atau audio yang ingin dijadikan status grup.",
+          examples: [`${command}`],
+        });
 
       const sleep = (ms: number) =>
         new Promise<void>((res) => setTimeout(res, ms));
@@ -57,7 +61,11 @@ export default async function handler(panjy: PluginContext) {
         mediaType = "audioMessage";
         mediaData = { ...quotedMsg.audioMessage, ptt: true };
       } else {
-        return PanjayText("👻 Format tidak didukung! Harus Gambar, Video, atau Audio.");
+        return PanjayInvalid({
+          title: "INVALID MEDIA",
+          message: "Format tidak didukung. Gunakan gambar, video, atau audio.",
+          examples: [`${command}`],
+        });
       }
 
       try {

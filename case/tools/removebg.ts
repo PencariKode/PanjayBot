@@ -22,11 +22,12 @@ export const info: PluginInfo = {
 };
 
 export default async function handler(panjy: PluginContext) {
-  const {
+  const { command,
     panjay,
     msg,
     replyJid,
     PanjayText,
+    PanjayInvalid,
     PanjayWait,
   } = panjy;
 
@@ -43,13 +44,19 @@ export default async function handler(panjy: PluginContext) {
   }
 
   if (!imageMsg) {
-    return PanjayText(
-      "⚠️ *Kirim atau reply foto yang ingin dihapus backgroundnya!*"
-    );
+    return PanjayInvalid({
+      title: "IMAGE REQUIRED",
+      message: "Kirim atau reply foto yang ingin dihapus backgroundnya.",
+      examples: [`${command}`],
+    });
   }
 
   if (!botConfig.secrets.removeBgApiKey) {
-    return PanjayText("⚠️ REMOVEBG_API_KEY belum diatur di file .env.");
+    return PanjayInvalid({
+      title: "CONFIG REQUIRED",
+      message: "REMOVEBG_API_KEY belum diatur di file .env.",
+      details: "Isi konfigurasi sebelum memakai fitur remove background.",
+    });
   }
 
   await PanjayWait();
@@ -108,6 +115,6 @@ export default async function handler(panjy: PluginContext) {
       : err instanceof Error
         ? err.message
         : String(err);
-    return PanjayText(`😎 *Gagal memproses gambar!*\n\nError: ${errMsg}`);
+    return PanjayInvalid({ title: "GAGAL", message: `Gagal memproses gambar!\n\nError: ${errMsg}` });
   }
 }

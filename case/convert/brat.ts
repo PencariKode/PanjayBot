@@ -64,14 +64,16 @@ async function centerBratVertically(buffer: Buffer): Promise<Buffer> {
 }
 
 export default async function handler(panjy: PluginContext) {
-  const { command, q, panjay, replyJid, PanjayText, msg } = panjy;
+  const { command, q, panjay, replyJid, PanjayText, PanjayInvalid, msg } = panjy;
 
   switch (command) {
     case "brat": {
       if (!q.trim()) {
-        return PanjayText(
-          "⚠ *Masukkan Teks Yang Ingin Diubah.*\n\nContoh : *.brat Panjay Keren*",
-        );
+        return PanjayInvalid({
+          title: "INPUT REQUIRED",
+          message: "Masukkan teks yang ingin diubah menjadi brat sticker.",
+          example: `${command} Panjay Keren`,
+        });
       }
 
       try {
@@ -88,7 +90,7 @@ export default async function handler(panjy: PluginContext) {
         const buffer = await centerBratVertically(rawBuffer);
 
         if (buffer.length === 0) {
-          return PanjayText("❌ Gagal membuat gambar Brat.");
+          return PanjayInvalid({ title: "GAGAL", message: "Gagal membuat gambar Brat." });
         }
 
         const stickerPath = await writeExif(
@@ -109,7 +111,7 @@ export default async function handler(panjy: PluginContext) {
           "Error Brat Generator:",
           error instanceof Error ? error.message : String(error),
         );
-        return PanjayText("❌ *Gagal Membuat Brat Sticker.*");
+        return PanjayInvalid({ title: "GAGAL", message: "Gagal Membuat Brat Sticker." });
       }
 
       break;

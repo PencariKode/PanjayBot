@@ -21,7 +21,7 @@ export const info: PluginInfo = {
 };
 
 export default async function handler(panjy: PluginContext) {
-  const { command, q, panjay, msg, replyJid, PanjayText, PanjayWait } = panjy;
+  const { command, q, panjay, msg, replyJid, PanjayText, PanjayInvalid, PanjayWait } = panjy;
 
   switch (command) {
     case "filejs":
@@ -30,17 +30,21 @@ export default async function handler(panjy: PluginContext) {
         const quotedMsg = quoted?.quotedMessage;
 
         if (!quotedMsg || !quotedMsg.conversation) {
-          return PanjayText(
-            "⚠️ Harap *Reply* Pesan Yang Ingin Anda Buat Menjadi File .js",
-          );
+          return PanjayInvalid({
+            title: "MESSAGE REQUIRED",
+            message: "Reply pesan teks atau kode yang ingin dibuat menjadi file JavaScript.",
+            example: `${command} nama_file`,
+          });
         }
         const fileContent =
           quotedMsg.conversation || quotedMsg.extendedTextMessage?.text || "";
 
         if (fileContent.length === 0) {
-          return PanjayText(
-            "❌ Pesan Yang Direply Tidak Mengandung Teks (kode) Untuk Dibuat File.",
-          );
+          return PanjayInvalid({
+            title: "INVALID MESSAGE",
+            message: "Pesan yang direply tidak mengandung teks atau kode.",
+            example: `${command} nama_file`,
+          });
         }
         let fileName = q ? q.trim() : "Panjay_JS";
 

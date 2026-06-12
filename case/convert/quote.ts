@@ -25,7 +25,7 @@ interface QuoteResponse {
 }
 
 export default async function handler(panjy: PluginContext) {
-  const { command, msg, panjay, PanjayWait, replyJid, args, PanjayText } = panjy;
+  const { command, msg, panjay, PanjayWait, replyJid, args, PanjayText, PanjayInvalid } = panjy;
 
   switch (command) {
     case "qc":
@@ -34,12 +34,21 @@ export default async function handler(panjy: PluginContext) {
         const text = args.join(" ");
 
         if (!text) {
-          return PanjayText("*Contoh: .Qc Halo Panjay*");
+          return PanjayInvalid({
+            title: "INPUT REQUIRED",
+            message: "Masukkan teks yang ingin dibuat menjadi quote sticker.",
+            example: `${command} Halo Panjay`,
+          });
         }
 
         try {
           const sender = msg.key.participant || msg.key.remoteJid;
-          if (!sender) return PanjayText("❌ Sender tidak valid.");
+          if (!sender)
+            return PanjayInvalid({
+              title: "INVALID SENDER",
+              message: "Sender pesan tidak valid.",
+              example: `${command} Halo Panjay`,
+            });
           const name = msg.pushName || "Panjay User";
 
           let ppUrl: string;
@@ -94,7 +103,7 @@ export default async function handler(panjy: PluginContext) {
           });
         } catch (err) {
           console.error("QC Error:", err);
-          return PanjayText("❌ Gagal Membuat Quote Sticker.");
+          return PanjayInvalid({ title: "GAGAL", message: "Gagal Membuat Quote Sticker." });
         }
       }
       break;

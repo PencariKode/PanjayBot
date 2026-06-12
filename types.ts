@@ -4,6 +4,7 @@ import type {
   WAMessage,
   WAMessageKey,
 } from "@whiskeysockets/baileys";
+import type { CommandResponseOptions } from "./lib/response.ts";
 
 export type Awaitable<T> = T | Promise<T>;
 
@@ -144,6 +145,7 @@ export interface PluginContext {
   senderJid: string | null;
   panjayreply: (text: string) => Promise<unknown>;
   PanjayText: (text: string) => Promise<unknown>;
+  PanjayInvalid: (options: CommandResponseOptions) => Promise<unknown>;
   PanjayWait: () => Promise<unknown>;
   PanjayVideo: (url: string, caption?: string) => Promise<unknown>;
   PanjayImage: (url: string, caption?: string) => Promise<unknown>;

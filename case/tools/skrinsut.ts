@@ -134,13 +134,14 @@ export const info: PluginInfo = {
 };
 
 export default async function handler(panjy: PluginContext) {
-  const {
+  const { command,
     q,
     panjay,
     msg,
     replyJid,
     PanjayText,
     PanjayWait,
+    PanjayInvalid,
   } = panjy;
 
   const parts = q.trim().split(/\s+/);
@@ -148,14 +149,17 @@ export default async function handler(panjy: PluginContext) {
   const modeArg = parts[1]?.toLowerCase();
 
   if (!url) {
-    return PanjayText(
-      `*Screenshot Website*\n\n` +
-      `*Compatible:*\n` +
-      `\`Desktop\` \`Android\` \`Fullpage\`\n` +
-      `*Example:*\n` +
-      `.ss https://api.fromscratch.web.id/\n` +
-      `.ss https://api.fromscratch.web.id/ android`
-    );
+    return PanjayInvalid({
+      title: "SCREENSHOT WEBSITE",
+      message: "Screenshot Website Kamu Dalam Tiga Mode",
+      customFields: {
+        "Compatible": ["`Desktop`", "`Android`", "`Fullpage`"]
+      },
+      examples: [
+        `${command} https://api.fromscratch.web.id/`,
+        `${command} https://api.fromscratch.web.id/ android`
+      ]
+    });
   }
 
   if (!/^https?:\/\//i.test(url)) url = "https://" + url;

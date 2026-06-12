@@ -55,7 +55,7 @@ function cleanTitle(title = ""): string | null {
 }
 
 export default async function handler(panjy: PluginContext) {
-  const { PanjayText, PanjayWait, replyJid, panjay, msg } = panjy;
+  const { PanjayText, PanjayWait, replyJid, panjay, msg, PanjayInvalid } = panjy;
 
   await PanjayWait();
 
@@ -71,21 +71,21 @@ export default async function handler(panjy: PluginContext) {
           })
         : [];
     } catch {
-      return PanjayText("⚠️ Gagal Mengambil Data.");
+      return PanjayInvalid({ title: "GAGAL", message: "Gagal Mengambil Data." });
     }
 
-    if (!presetList.length) return PanjayText("⚠️ Daftar preset kosong.");
+    if (!presetList.length) return PanjayInvalid({ title: "KOSONG", message: "Daftar preset kosong." });
 
 
     const preset = presetList[Math.floor(Math.random() * presetList.length)];
-    if (!preset) return PanjayText("⚠️ Daftar preset kosong.");
+    if (!preset) return PanjayInvalid({ title: "KOSONG", message: "Daftar preset kosong." });
 
     const editby     = preset.editby      || "KurangTau";
     const presetLink = preset.preset_link || "";
     const xmlLink    = preset.xml_link    || "";
     const sourceUrl  = preset.source      || "";
 
-    if (!sourceUrl) return PanjayText("😎 Preset ini tidak memiliki source video.");
+    if (!sourceUrl) return PanjayInvalid({ title: "TIDAK ADA SOURCE", message: "Preset ini tidak memiliki source video." });
 
     let ttData: TiktokPresetData | undefined;
     try {
@@ -97,13 +97,14 @@ export default async function handler(panjy: PluginContext) {
       if (ttRes.data?.status !== 200) throw new Error(ttRes.data?.message || "API error");
       ttData = ttRes.data.data;
     } catch (e) {
-      return PanjayText(
-        `⚠️ Gagal Mengambil Video.\n${e instanceof Error ? e.message : String(e)}`,
-      );
+      return PanjayInvalid({
+        title: "GAGAL",
+        message: `Gagal Mengambil Video.\n${e instanceof Error ? e.message : String(e)}`,
+      });
     }
 
     const videoUrl = ttData?.watermark || ttData?.no_watermark;
-    if (!videoUrl) return PanjayText("⚠️ URL video tidak tersedia.");
+    if (!videoUrl) return PanjayInvalid({ title: "TIDAK TERSEDIA", message: "URL video tidak tersedia." });
     
     const title = cleanTitle(ttData?.title ?? "");
     
@@ -136,9 +137,10 @@ export default async function handler(panjy: PluginContext) {
 
   } catch (err) {
     console.error("[PRESET ERROR]", err);
-    PanjayText(
-      `⚠️ *Terjadi Kesalahan*\n${err instanceof Error ? err.message : String(err)}`,
-    );
+    PanjayInvalid({
+      title: "ERROR",
+      message: `Terjadi Kesalahan\n${err instanceof Error ? err.message : String(err)}`,
+    });
   } finally {
     if (tmpPath && fs.existsSync(tmpPath)) {
       try {
