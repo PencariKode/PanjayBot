@@ -6,6 +6,7 @@ import Crypto from "crypto";
 import ff from "fluent-ffmpeg";
 import webp from "node-webpmux";
 import path from "path";
+import { botConfig } from "../config.ts";
 import type { StickerOptions } from "../types.ts";
 
 const stickerFilter =
@@ -119,10 +120,10 @@ export async function writeExif(
 
   const img = new webp.Image();
   const json = {
-    "sticker-pack-id": `https://PencariKode.github.com/`,
-    "sticker-pack-name": metadata.packname || "Panjay Bot",
-    "sticker-pack-publisher": metadata.author || "Panjay",
-    emojis: metadata.categories ? metadata.categories : [""],
+    "sticker-pack-id": botConfig.sticker.packId,
+    "sticker-pack-name": metadata.packname || botConfig.sticker.packName,
+    "sticker-pack-publisher": metadata.author || botConfig.sticker.author,
+    emojis: metadata.categories ? metadata.categories : botConfig.sticker.categories,
   };
 
   const exifAttr = Buffer.from([

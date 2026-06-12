@@ -3,9 +3,7 @@ import type { PluginContext, PluginInfo } from "../../types.ts";
 
 import FormData from "form-data";
 import axios from "axios";
-
-// Apikeys
-const REMOVEBG_API_KEY = "sk-sakanaa-eb8614f0b2dd958a1191b4d0588393f4780b66942af824c2";
+import { botConfig } from "../../config.ts";
 
 export const info: PluginInfo = {
   name: "Remove Background",
@@ -27,32 +25,31 @@ export default async function handler(panjy: PluginContext) {
   const {
     panjay,
     msg,
-    len,
     replyJid,
     PanjayText,
     PanjayWait,
-    mediaType,
   } = panjy;
 
   let imageMsg = null;
-  let sourceLabel = "";
 
   if (msg.message?.imageMessage) {
     imageMsg = msg.message.imageMessage;
-    sourceLabel = "direct";
   }
 
   const quotedMsg =
     msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
   if (!imageMsg && quotedMsg?.imageMessage) {
     imageMsg = quotedMsg.imageMessage;
-    sourceLabel = "quoted";
   }
 
   if (!imageMsg) {
     return PanjayText(
       "⚠️ *Kirim atau reply foto yang ingin dihapus backgroundnya!*"
     );
+  }
+
+  if (!botConfig.secrets.removeBgApiKey) {
+    return PanjayText("⚠️ REMOVEBG_API_KEY belum diatur di file .env.");
   }
 
   await PanjayWait();
@@ -73,7 +70,7 @@ export default async function handler(panjy: PluginContext) {
       {
         headers: {
           ...form.getHeaders(),
-          Authorization: `Bearer ${REMOVEBG_API_KEY}`,
+          Authorization: `Bearer ${botConfig.secrets.removeBgApiKey}`,
         },
         responseType: "arraybuffer",
         timeout: 60_000,

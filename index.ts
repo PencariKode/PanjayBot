@@ -11,12 +11,11 @@ import {
 import { pino } from "pino";
 import chalk from "chalk";
 import readline from "readline";
-import path from "path";
-import { fileURLToPath } from "url";
 import os from "os";
 import fs from "fs";
 
 import attachSticker from "./lib/sticker.ts";
+import { botConfig } from "./config.ts";
 import type {
   HandlerMeta,
   MessageUpsert,
@@ -25,13 +24,6 @@ import type {
 
 // Simpan ID Interval Polling
 let pollingIntervalId: NodeJS.Timeout | null = null;
-
-// Path ESM
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Pairing Mode
-const usePairingCode = true;
 
 // Fungsi Input Terminal
 async function question(prompt: string): Promise<string> {
@@ -51,17 +43,17 @@ async function question(prompt: string): Promise<string> {
 
 async function connectToWhatsApp(): Promise<void> {
   const { state, saveCreds } = await useMultiFileAuthState(
-    path.resolve(__dirname, "./PanjaySesi"),
+    botConfig.whatsapp.sessionDir,
   );
 
   const { version, isLatest } = await fetchLatestBaileysVersion();
-  console.log(`Panjay Using WA v${version.join(".")}, isLatest: ${isLatest}`);
+  console.log(`${botConfig.identity.name} Using WA v${version.join(".")}, isLatest: ${isLatest}`);
 
   const panjay = makeWASocket({
     logger: pino({ level: "silent" }),
-    printQRInTerminal: !usePairingCode,
+    printQRInTerminal: !botConfig.whatsapp.usePairingCode,
     auth: state,
-    browser: ["Ubuntu", "Chrome", "20.0.04"],
+    browser: botConfig.whatsapp.browser,
     version,
     syncFullHistory: true,
     generateHighQualityLinkPreview: true,
@@ -73,7 +65,7 @@ async function connectToWhatsApp(): Promise<void> {
   // startPolling(panjay)
 
   // Handle Pairing
-  if (usePairingCode && !panjay.authState.creds.registered) {
+  if (botConfig.whatsapp.usePairingCode && !panjay.authState.creds.registered) {
     try {
       const phoneNumber = await question(
         "☘️ Masukan Nomor Yang Diawali Dengan 62 :\n",
@@ -111,7 +103,7 @@ async function connectToWhatsApp(): Promise<void> {
 
     const sender = msg.key.remoteJid;
     if (!sender) return;
-    const pushname = msg.pushName || "Panjay";
+    const pushname = msg.pushName || botConfig.whatsapp.defaultPushName;
 
     // Deteksi Tipe Pesan
     const messageType = getContentType(msg.message);
@@ -191,7 +183,7 @@ async function connectToWhatsApp(): Promise<void> {
     const logTag = mediaType ? `[${mediaType}]` : "";
 
     console.log(
-      chalk.yellow.bold("Credit : Panjay"),
+      chalk.yellow.bold(`Credit : ${botConfig.owner.name}`),
       chalk.green.bold("[WhatsApp]"),
       chalk[randomColor](pushname),
       chalk[randomColor](" : "),

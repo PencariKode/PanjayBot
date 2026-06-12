@@ -11,6 +11,7 @@ import path from "path";
 import chalk from "chalk";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import { botConfig } from "./config.ts";
 import type {
   HandlerMeta,
   MessageUpsert,
@@ -48,12 +49,7 @@ interface PluginState {
   maintenance: string[];
 }
 
-const pluginStatePath = path.join(
-  process.cwd(),
-  "database",
-  "system",
-  "plugins.json",
-);
+const pluginStatePath = botConfig.paths.pluginState;
 
 if (!fs.existsSync(pluginStatePath)) {
   fs.mkdirSync(path.dirname(pluginStatePath), { recursive: true });
@@ -238,7 +234,7 @@ export default async function handler(
     message: {
       contactMessage: {
         displayName: `${pushname}`,
-        vcard: `BEGIN:VCARD\nVERSION:3.0\nN:XL;Panjay,;;;\nFN: Panjay V1.0\nitem1.TEL;waid=${sender.split("@")[0] ?? ""}:+${sender.split("@")[0] ?? ""}\nitem1.X-ABLabel:Ponsel\nEND:VCARD`,
+        vcard: `BEGIN:VCARD\nVERSION:3.0\nN:XL;${botConfig.identity.name},;;;\nFN: ${botConfig.identity.displayName} V${botConfig.identity.version}\nitem1.TEL;waid=${sender.split("@")[0] ?? ""}:+${sender.split("@")[0] ?? ""}\nitem1.X-ABLabel:Ponsel\nEND:VCARD`,
         jpegThumbnail: pplu,
         thumbnail: pplu,
         sendEphemeral: true,
@@ -321,20 +317,12 @@ export default async function handler(
   }
 
   // Premium
-  const premiumPath = path.join(
-    process.cwd(),
-    "database",
-    "premium.json",
-  );
+  const premiumPath = botConfig.paths.premiumUsers;
   const premiumUsers = readStringArraySync(premiumPath);
   const isPremium = premiumUsers.includes(normalizedSender);
 
   // Creator
-  const CreatorPath = path.join(
-    process.cwd(),
-    "database",
-    "creator.json",
-  );
+  const CreatorPath = botConfig.paths.creators;
   const isCreatorArray = readStringArraySync(CreatorPath);
   const isPanjay = isCreatorArray.includes(normalizedSender);
 
@@ -470,7 +458,7 @@ export default async function handler(
       replyJid,
       {
         image: MenuImage,
-        caption: `${text}\n╰─〔 *Panjay From Scratch* 〕`,
+        caption: `${text}\n╰─〔 *${botConfig.branding.footer}* 〕`,
         mentions: [normalizedSender],
       },
       { quoted: msg },
@@ -500,7 +488,7 @@ export default async function handler(
       replyJid,
       {
         image: MenuImage,
-        caption: `${text}\n╰─〔 *Panjay From Scratch* 〕`,
+        caption: `${text}\n╰─〔 *${botConfig.branding.footer}* 〕`,
         mentions: [normalizedSender],
       },
       { quoted: msg },
@@ -543,7 +531,7 @@ export default async function handler(
 
     text += "╰────────────\n";
 
-    await panjayreply(`${text}\n╰─〔 *Panjay From Scratch* 〕`);
+    await panjayreply(`${text}\n╰─〔 *${botConfig.branding.footer}* 〕`);
   }
 
   if (!commands.has(command)) return;

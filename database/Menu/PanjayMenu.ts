@@ -1,12 +1,9 @@
 
 
 import fs from "fs";
-import path from "path";
-const ordersFile = path.join(
-  process.cwd(),
-  "database",
-  "orders.json",
-);
+import { botConfig } from "../../config.ts";
+
+const ordersFile = botConfig.paths.orders;
 
 interface StoredOrder {
   status?: unknown;
@@ -38,10 +35,10 @@ globalThis.getOrderStats = function () {
   return { totalOrders, totalAmount };
 };
 
-((globalThis.panjaymenu = `╭─〔 *PANJAY BOT* 〕
-│ ◇ WhatsApp Bot To Solve Your Problems
-│ ◇ Creator : Panji Depari
-│ ◇ Contact : wa.me/6283829814737
+((globalThis.panjaymenu = `╭─〔 *${botConfig.identity.displayName.toUpperCase()}* 〕
+│ ◇ ${botConfig.identity.description}
+│ ◇ Creator : ${botConfig.owner.name}
+│ ◇ Contact : ${botConfig.owner.contact}
 ╰─〔 *MENU* 〕\n`),
   // List Menu =========================
   (globalThis.storelist = `╭─〔 *ORDER STATISTICS* 〕

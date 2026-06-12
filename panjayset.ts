@@ -2,35 +2,30 @@
 
 import chalk from "chalk";
 import figlet from "figlet";
+import { botConfig } from "./config.ts";
 
 const terminalWidth = process.stdout.columns;
 const maxWidth = Math.min(terminalWidth, 50);
 const formatErrorMessage = (error: unknown): string =>
   error instanceof Error ? error.message : String(error);
 
-// Konfigurasi Bot
-const config = {
-  whatsapp: true,
-  telegram: false,
-};
-
 // Fungsi utama
 (async () => {
   try {
-    if (config.whatsapp) {
-      console.log(chalk.green.bold("\n🎁  Menjalankan Panjay Bot WhatsApp"));
+    if (botConfig.enabled.whatsapp) {
+      console.log(chalk.green.bold(`\n🎁  Menjalankan ${botConfig.identity.displayName} WhatsApp`));
       const { default: startWhatsApp } = await import("./index.ts");
       void startWhatsApp();
     } else {
       console.log(
-        chalk.red.bold("\n❌  Bot WhatsApp Dinonaktifkan Di PanjaySet.js"),
+        chalk.red.bold(`\n❌  Bot WhatsApp Dinonaktifkan Di ${botConfig.identity.name}Set.js`),
       );
     }
 
 
     const logo = await new Promise<string>((resolve, reject) => {
       figlet.text(
-        "Panjay",
+        botConfig.identity.name,
         {
           font: "ANSI Shadow",
           horizontalLayout: "default",
@@ -52,14 +47,14 @@ const config = {
 
     console.log(
       chalk.white.bold(`${chalk.green.bold("📃  Informasi :")}         
-✉️  Script Panjay Rebuild
-✉️  Author : Panjay
-✉️  Gmail : ipanjayy@gmail.com
-✉️  Instagram : Ipanjay_
-✉️  Youtube : Panjay
-🎁  Base : Panjay
+✉️  ${botConfig.branding.startupTitle}
+✉️  Author : ${botConfig.owner.name}
+✉️  Gmail : ${botConfig.owner.email}
+✉️  Instagram : ${botConfig.owner.instagram}
+✉️  Youtube : ${botConfig.owner.youtube}
+🎁  Base : ${botConfig.branding.baseName}
 
-${chalk.green.bold("🎁  Subscribe Panjay :D")}\n`),
+${chalk.green.bold(`🎁  Subscribe ${botConfig.identity.name} :D`)}\n`),
     );
   } catch (err) {
     console.error(

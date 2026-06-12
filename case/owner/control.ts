@@ -3,13 +3,9 @@ import type { PluginContext, PluginInfo } from "../../types.ts";
 
 import fs from "fs";
 import path from "path";
+import { botConfig } from "../../config.ts";
 
-const pluginStatePath = path.join(
-  process.cwd(),
-  "database",
-  "system",
-  "plugins.json",
-);
+const pluginStatePath = botConfig.paths.pluginState;
 
 if (!fs.existsSync(pluginStatePath)) {
   fs.mkdirSync(path.dirname(pluginStatePath), { recursive: true });
