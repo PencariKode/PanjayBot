@@ -55,3 +55,6 @@ lid-mapping-*_reverse.json
 # Misc
 .sass-cache/
 bower_components/
+
+# Prisma
+prisma/migrations/

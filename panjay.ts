@@ -13,6 +13,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { botConfig } from "./config.ts";
 import { formatCommandResponse } from "./lib/response.ts";
+import { getDataStore } from "./lib/dataStore.ts";
 import type {
   HandlerMeta,
   MessageUpsert,
@@ -27,6 +28,8 @@ import type {
 // Track Messages
 const processedMessages = new Set<string>();
 const groupMetadataCache = new Map<string, { data: GroupMetadata; time: number }>();
+
+const dataStore = getDataStore();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -318,14 +321,10 @@ export default async function handler(
   }
 
   // Premium
-  const premiumPath = botConfig.paths.premiumUsers;
-  const premiumUsers = readStringArraySync(premiumPath);
-  const isPremium = premiumUsers.includes(normalizedSender);
+  const isPremium = await dataStore.isPremiumUser(normalizedSender);
 
   // Creator
-  const CreatorPath = botConfig.paths.creators;
-  const isCreatorArray = readStringArraySync(CreatorPath);
-  const isPanjay = isCreatorArray.includes(normalizedSender);
+  const isPanjay = await dataStore.isCreator(normalizedSender);
 
   // Delete Message
   async function deleteMessage(msgKey: WAMessageKey | undefined, tag = "DELETE") {

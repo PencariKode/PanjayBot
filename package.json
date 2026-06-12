@@ -7,11 +7,16 @@
   "scripts": {
     "start": "tsx panjayset.ts",
     "typecheck": "tsc --noEmit",
-    "check:no-any": "rg -n \"(:\\s*any\\b|as\\s+any\\b|<any>|Array<any>)\" . -g \"*.ts\" -g \"*.d.ts\" -g \"!node_modules\" && exit 1 || exit 0"
+    "check:no-any": "rg -n \"(:\\s*any\\b|as\\s+any\\b|<any>|Array<any>)\" . -g \"*.ts\" -g \"*.d.ts\" -g \"!node_modules\" && exit 1 || exit 0",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev"
   },
   "author": "Panjay",
   "license": "MIT",
   "dependencies": {
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
     "@whiskeysockets/baileys": "^7.0.0-rc.9",
     "axios": "^1.4.0",
     "brat-canvas": "^1.0.30",
@@ -25,6 +30,7 @@
     "node-webpmux": "3.2.1",
     "os": "0.1.2",
     "path": "^0.12.7",
+    "pg": "^8.21.0",
     "pino": "^8.14.1",
     "readline": "1.3.0",
     "url": "^0.11.0",
@@ -32,6 +38,8 @@
   },
   "devDependencies": {
     "@types/mime-types": "^2.1.4",
+    "@types/pg": "^8.20.0",
+    "prisma": "^7.8.0",
     "tsx": "^4.20.0",
     "typescript": "^5.8.3"
   }

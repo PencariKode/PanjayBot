@@ -2,8 +2,10 @@ import type { PluginContext, PluginInfo } from "../../types.ts";
 import fs from "fs";
 import path from "path";
 import Crypto from "crypto";
-import { tmpdir } from "os";
+import { tmpdir, platform } from "os";
 import { spawn } from "child_process";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 import {
   DEF_MEDIA_HOST,
   downloadContentFromMessage,
@@ -11,6 +13,15 @@ import {
 } from "@whiskeysockets/baileys";
 import webp, { type WebPFrame } from "node-webpmux";
 import { writeExif } from "../../lib/exif.ts";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const ANTON_FONT = (() => {
+  const fontPath = path.resolve(__dirname, "../../assets/Anton-Regular.ttf").replace(/\\/g, '/');
+  // Only escape colons on Windows (for FFmpeg filter syntax)
+  return platform() === 'win32' ? fontPath.replace(/:/g, '\\:') : fontPath;
+})();
 
 export const info: PluginInfo = {
   name: "Sticker Meme",
@@ -28,7 +39,6 @@ export const info: PluginInfo = {
   allowPrivate: true,
 };
 
-const IMPACT_FONT = "C\\:/Windows/Fonts/impact.ttf";
 type MediaKind = "image" | "video" | "sticker";
 type Downloadable = Parameters<typeof downloadContentFromMessage>[0];
 
@@ -140,7 +150,7 @@ function escapeDrawtext(text: string): string {
 function drawtext(text: string, y: string): string {
   return [
     "drawtext=",
-    `fontfile='${IMPACT_FONT}'`,
+    `fontfile='${ANTON_FONT}'`,
     `:text='${escapeDrawtext(text)}'`,
     ":fontcolor=white",
     ":fontsize=44",

@@ -16,6 +16,7 @@ import fs from "fs";
 
 import attachSticker from "./lib/sticker.ts";
 import { botConfig } from "./config.ts";
+import { usePostgresAuthState } from "./lib/usePostgresAuthState.ts";
 import type {
   HandlerMeta,
   MessageUpsert,
@@ -42,9 +43,10 @@ async function question(prompt: string): Promise<string> {
 }
 
 async function connectToWhatsApp(): Promise<void> {
-  const { state, saveCreds } = await useMultiFileAuthState(
-    botConfig.whatsapp.sessionDir,
-  );
+  const { state, saveCreds } =
+    botConfig.database.sessionStore === "database"
+      ? await usePostgresAuthState()
+      : await useMultiFileAuthState(botConfig.whatsapp.sessionDir);
 
   const { version, isLatest } = await fetchLatestBaileysVersion();
   console.log(`${botConfig.identity.name} Using WA v${version.join(".")}, isLatest: ${isLatest}`);
