@@ -12,7 +12,7 @@ const formatErrorMessage = (error: unknown): string =>
 // Fungsi utama
 (async () => {
   try {
-    if (botConfig.enabled.whatsapp) {
+    if (botConfig.enabled) {
       console.log(chalk.green.bold(`\n🎁  Menjalankan ${botConfig.identity.displayName} WhatsApp`));
       const { default: startWhatsApp } = await import("./index.ts");
       void startWhatsApp();

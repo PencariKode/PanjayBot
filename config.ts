@@ -4,10 +4,7 @@ import { envBoolean, envList, envString, rootDir } from "./lib/configUtil.ts";
 import type { GlobalMessages } from "./types.ts";
 
 export const botConfig = {
-  enabled: {
-    whatsapp: envBoolean("WHATSAPP_ENABLED", true),
-    telegram: envBoolean("TELEGRAM_ENABLED", false),
-  },
+  enabled: envBoolean("WHATSAPP_ENABLED", true),
   identity: {
     name: envString("BOT_NAME", "Panjay"),
     displayName: envString("BOT_DISPLAY_NAME", "Panjay Bot"),
