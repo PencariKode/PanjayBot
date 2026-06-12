@@ -106,7 +106,7 @@ export default async function handler(panjy: PluginContext) {
     let results = await pinterestSearch(query, 20);
 
     if (!results || results.length === 0) {
-      return PanjayText("🍂 Gambar tidak ditemukan.");
+      return PanjayInvalid({ title: "TIDAK DITEMUKAN", message: "Gambar tidak ditemukan." });
     }
 
     results = results.filter((v) => v?.original_url);
@@ -127,6 +127,6 @@ export default async function handler(panjy: PluginContext) {
     );
   } catch (err) {
     console.error(err);
-    return PanjayText("❌ Error saat mengambil gambar.");
+    return PanjayInvalid({ title: "ERROR", message: "Error saat mengambil gambar." });
   }
 }

@@ -90,7 +90,7 @@ export default async function handler(panjy: PluginContext) {
         const buffer = await centerBratVertically(rawBuffer);
 
         if (buffer.length === 0) {
-          return PanjayText("❌ Gagal membuat gambar Brat.");
+          return PanjayInvalid({ title: "GAGAL", message: "Gagal membuat gambar Brat." });
         }
 
         const stickerPath = await writeExif(
@@ -111,7 +111,7 @@ export default async function handler(panjy: PluginContext) {
           "Error Brat Generator:",
           error instanceof Error ? error.message : String(error),
         );
-        return PanjayText("❌ *Gagal Membuat Brat Sticker.*");
+        return PanjayInvalid({ title: "GAGAL", message: "Gagal Membuat Brat Sticker." });
       }
 
       break;

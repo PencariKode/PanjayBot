@@ -62,7 +62,7 @@ export default async function handler(panjy: PluginContext) {
         const json = (await res.json()) as YoutubeSearchResponse;
 
         if (!json.status || !json.result?.length)
-          return PanjayText("⚠️ *Tidak Ada Hasil Ditemukan.*");
+          return PanjayInvalid({ title: "TIDAK DITEMUKAN", message: "Tidak Ada Hasil Ditemukan." });
 
         const results = json.result.slice(0, 5); // ambil 5 teratas
 

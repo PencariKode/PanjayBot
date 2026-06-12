@@ -47,6 +47,7 @@ export default async function handler(panjy: PluginContext) {
     command,
     panjayreply,
     m,
+    PanjayInvalid,
   } = panjy;
 
   switch (command) {
@@ -67,7 +68,7 @@ export default async function handler(panjy: PluginContext) {
           panjayreply(message);
         } catch (error) {
           console.error(error);
-          panjayreply("⚠️ Maaf, gagal mengambil atau menerjemahkan quotes. Coba lagi nanti.");
+          return PanjayInvalid({ title: "GAGAL", message: "Maaf, gagal mengambil atau menerjemahkan quotes. Coba lagi nanti." });
         }
       }
       break;

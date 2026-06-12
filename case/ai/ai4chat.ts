@@ -40,7 +40,7 @@ export default async function handler(panjay: PluginContext) {
         try {
           const lenai = await Ai4Chat(q);
 
-          if (!lenai) return PanjayText("⚠️ AI Tidak Merespon.");
+          if (!lenai) return PanjayInvalid({ title: "TIDAK MERESPON", message: "AI Tidak Merespon." });
 
           await PanjayText(`*Panjay AI*\n\n${lenai}`);
         } catch (error) {

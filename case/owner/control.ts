@@ -72,7 +72,7 @@ export default async function handler(panjy: PluginContext) {
   const commands = globalThis.commands;
 
   if (!commands)
-    return PanjayText("❌ System Error: Commands Map Tidak Ditemukan.");
+    return PanjayInvalid({ title: "SYSTEM ERROR", message: "Commands Map Tidak Ditemukan." });
 
   const state = readPluginState();
 

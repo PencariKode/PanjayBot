@@ -103,7 +103,7 @@ export default async function handler(panjy: PluginContext) {
           });
         } catch (err) {
           console.error("QC Error:", err);
-          return PanjayText("❌ Gagal Membuat Quote Sticker.");
+          return PanjayInvalid({ title: "GAGAL", message: "Gagal Membuat Quote Sticker." });
         }
       }
       break;

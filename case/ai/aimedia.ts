@@ -141,7 +141,7 @@ export default async function handler(panjy: PluginContext) {
         );
       } catch (err) {
         console.error("Enhancer Error:", err);
-        return PanjayText("❌ Gagal Meningkatkan Gambar.");
+        return PanjayInvalid({ title: "GAGAL", message: "Gagal Meningkatkan Gambar." });
       }
 
       break;

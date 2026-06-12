@@ -93,7 +93,7 @@ export default async function handler(panjy: PluginContext) {
 
           // Validasi Error
           if (!response || response.status !== 200 || !response.data) {
-            return PanjayText("Gagal Mengambil Respon AI");
+            return PanjayInvalid({ title: "GAGAL", message: "Gagal Mengambil Respon AI" });
           }
 
           // Hasil API

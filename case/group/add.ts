@@ -71,7 +71,7 @@ export default async function handler(panjy: PluginContext) {
 
       } catch (err) {
         console.error("Add Error:", err);
-        PanjayText("👻 Gagal menambahkan. Kemungkinan privasi nomor tersebut menolak undangan otomatis.");
+        PanjayInvalid({ title: "GAGAL", message: "Gagal menambahkan. Kemungkinan privasi nomor tersebut menolak undangan otomatis." });
       }
 
       break;

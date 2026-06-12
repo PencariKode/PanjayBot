@@ -61,7 +61,7 @@ export default async function handler(panjay: PluginContext) {
         const { data: response } = await axios.get<TiktokDownloadResponse>(apiUrl);
 
         if (response.status !== 200 || !response.data?.no_watermark)
-          return PanjayText("❌ Gagal mengunduh video.");
+          return PanjayInvalid({ title: "GAGAL", message: "Gagal mengunduh video." });
 
         const videoUrl = response.data.no_watermark;
 
@@ -74,7 +74,7 @@ export default async function handler(panjay: PluginContext) {
           "TTDL Error:",
           error instanceof Error ? error.message : String(error),
         );
-        PanjayText("❌ Gagal mengunduh video TikTok.");
+        PanjayInvalid({ title: "GAGAL", message: "Gagal mengunduh video TikTok." });
       }
       break;
     }

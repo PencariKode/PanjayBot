@@ -66,11 +66,11 @@ export default async function handler(panjy: PluginContext) {
           const { data: response } = await axios.get<YoutubeDownloadResponse>(apiUrl);
 
           if (response.status !== 200 || !response.data) {
-            return PanjayText("❌ *Terjadi Masalah*");
+            return PanjayInvalid({ title: "ERROR", message: "Terjadi Masalah" });
           }
 
           const { title, download_url } = response.data;
-          if (!download_url) return PanjayText("❌ *Terjadi Masalah*");
+          if (!download_url) return PanjayInvalid({ title: "ERROR", message: "Terjadi Masalah" });
           // const captionText = `*🎁 Panjay YouTube Downloader (Video)*`;
 
           // await panjay.sendMessage(replyJid, {

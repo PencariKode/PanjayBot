@@ -356,8 +356,9 @@ export default async function handler(panjy: PluginContext) {
             };
           }
 
-          grouped[ext].files.push(file);
-          grouped[ext].size += stats.size;
+          const group = grouped[ext]!;
+          group.files.push(file);
+          group.size += stats.size;
           totalSize += stats.size;
         }
 

@@ -141,9 +141,7 @@ export default async function handler(panjy: PluginContext) {
     const char = await findCharacter(q);
 
     if (!char)
-      return panjayreply(
-        "⚠️ *Karakter tidak ditemukan!*\n\nCoba cek ejaan nama-nya ya."
-      );
+      return PanjayInvalid({ title: "TIDAK DITEMUKAN", message: "Karakter tidak ditemukan!\n\nCoba cek ejaan nama-nya ya." });
 
     const imgUrl = char.image?.large || null;
 
@@ -183,6 +181,6 @@ export default async function handler(panjy: PluginContext) {
       await PanjayText(caption);
     }
   } catch (err) {
-    return panjayreply(`*Karakter Gak Ketemu Nih! Coba Pastikan Ejaan Namanya Bener*`);
+    return PanjayInvalid({ title: "TIDAK DITEMUKAN", message: "Karakter Gak Ketemu Nih! Coba Pastikan Ejaan Namanya Bener" });
   }
 }

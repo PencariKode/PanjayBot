@@ -101,7 +101,7 @@ export default async function handler(panjy: PluginContext) {
         } catch (err) {
           console.error("Sticker Error:", err);
 
-          return PanjayText("❌ Gagal Membuat Sticker.");
+          return PanjayInvalid({ title: "GAGAL", message: "Gagal Membuat Sticker." });
         }
       }
       break;

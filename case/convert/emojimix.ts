@@ -157,7 +157,7 @@ export default async function handler(panjy: PluginContext) {
         ) {
           PanjayText(`👻 Kombinasi ${emoji1} + ${emoji2} belum ada. Coba kombinasi lain!`);
         } else {
-          PanjayText(`👻 Gagal memproses emojimix!\n${message}`);
+          PanjayInvalid({ title: "GAGAL", message: `Gagal memproses emojimix!\n${message}` });
         }
       } finally {
         // Cleanup tmp files

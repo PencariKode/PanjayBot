@@ -115,6 +115,6 @@ export default async function handler(panjy: PluginContext) {
       : err instanceof Error
         ? err.message
         : String(err);
-    return PanjayText(`😎 *Gagal memproses gambar!*\n\nError: ${errMsg}`);
+    return PanjayInvalid({ title: "GAGAL", message: `Gagal memproses gambar!\n\nError: ${errMsg}` });
   }
 }
