@@ -1,26 +1,21 @@
-import type { PluginContext, PluginInfo } from "../types.ts";
+import type { PluginContext, PluginInfo } from "../../types.ts";
 
 
-// Import Dependency (Jika Ada)
-import axios from "axios";
-
-// Metadata
 export const info: PluginInfo = {
-  name: "Nama Fitur",
+  name: "Testing",
 
-  menu: ["panjay"],
-  case: ["panjay", "panjay1", "alias2"],
+  menu: ["testing"],
+  case: ["testing", "t"],
 
-  description: "Penjelasan Singkat Fitur",
-  hidden: false,
+  description: "Menu untuk Testing",
+  hidden: true,
 
-  owner: false,
+  owner: true,
   premium: false,
   group: false,
   private: false,
   admin: false,
   botAdmin: false,
-
   allowPrivate: false,
 };
 
@@ -51,12 +46,21 @@ export default async function handler(panjy: PluginContext) {
     isPanjay,
   } = panjy;
 
-  switch (command) {
-    case "panjay":
-    case "panjay1":
-      {
-        // Logic Di Sini
-      }
-      break;
-  }
+  // console.log(msg.message?.extendedTextMessage?.contextInfo);
+  console.log("TESTING", msg);
+
+  // await panjay.sendMessage(
+  //   replyJid,
+  //   {
+  //     text: JSON.stringify(msg)
+  //   },
+  //   {
+  //     quoted: msg
+  //   },
+  // );
+
+
+  // await panjay.sendMessage(replyJid, { react: { text: "✅", key: msg.key } });
+  await PanjayReact("♱");
+  
 }

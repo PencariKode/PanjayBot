@@ -402,6 +402,13 @@ export default async function handler(
       { quoted: msg },
     );
 
+  const PanjayReact = (emoji: string) =>
+    panjay.sendMessage(
+      replyJid,
+      { react: { text: emoji, key: msg.key } },
+      { quoted: msg },
+    );
+
   // Label Menu
   type PluginLabel = "Public" | "Owner" | "Premium" | "Admin" | "BotAdmin" | "Group" | "Private";
 
@@ -615,6 +622,7 @@ export default async function handler(
     PanjayImage,
     PanjayAudio,
     PanjayFile,
+    PanjayReact,
     isGroup,
     isAdmin,
     isBotAdmin,
