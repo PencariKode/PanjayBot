@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Session {
+  id        String   @id
+  data      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("sessions")
+}
+
+model PremiumUser {
+  id        Int      @id @default(autoincrement())
+  jid       String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("premium_users")
+}
+
+model Creator {
+  id        Int      @id @default(autoincrement())
+  jid       String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("creators")
+}

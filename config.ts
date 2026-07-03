@@ -51,6 +51,9 @@ export const botConfig = {
     startupTitle: envString("STARTUP_TITLE", "Script Panjay Rebuild"),
     baseName: envString("BASE_NAME", "Panjay"),
   },
+  database: {
+    sessionStore: envString("SESSION_STORE", "file") as "file" | "database",
+  },
   messages: {
     wait: envString("MSG_WAIT", "╭─〔 *WAIT* 〕\n│ ◇ One moment, please.\n╰────────────"),
     error: envString("MSG_ERROR", "╭─〔 *ERROR* 〕\n│ ◇ Gagal saat melakukan proses.\n╰────────────"),

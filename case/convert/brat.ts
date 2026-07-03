@@ -66,18 +66,21 @@ async function centerBratVertically(buffer: Buffer): Promise<Buffer> {
 export default async function handler(panjy: PluginContext) {
   const { command, q, panjay, replyJid, PanjayText, PanjayInvalid, msg } = panjy;
 
+  const quotedMess = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
+  let textBrat = (quotedMess?.conversation ? quotedMess.conversation : quotedMess?.imageMessage?.caption) || q.trim();
+
   switch (command) {
     case "brat": {
-      if (!q.trim()) {
+      if (!textBrat) {
         return PanjayInvalid({
           title: "INPUT REQUIRED",
-          message: "Masukkan teks yang ingin diubah menjadi brat sticker.",
-          example: `${command} Panjay Keren`,
+          message: "Masukkan/reply teks yang ingin diubah menjadi brat sticker.",
+          examples: [`${command} Panjay Keren`, `${command}`],
         });
       }
 
       try {
-        const rawBuffer = await bratGen(q.trim(), {
+        const rawBuffer = await bratGen(textBrat.trim(), {
           theme: "white",
           emojiStyle: "apple",
           W: 500,
