@@ -40,6 +40,31 @@ export async function removePremiumUser(jid: string): Promise<void> {
   await prisma.premiumUser.deleteMany({ where: { jid } });
 }
 
+// ─── ITLG Students Helpers ───
+
+export async function isITLGStudent(jid: string): Promise<boolean> {
+  const row = await prisma.itlgStudent.findUnique({ where: { jid } });
+  return row !== null;
+}
+
+export async function getITLGStudents(): Promise<string[]> {
+  const rows = await prisma.itlgStudent.findMany({ select: { jid: true } });
+  return rows.map((r: { jid: string }) => r.jid);
+}
+
+export async function addITLGStudent(jid: string): Promise<void> {
+  await prisma.itlgStudent.upsert({
+    where: { jid },
+    update: {},
+    create: { jid },
+  });
+}
+
+export async function removeITLGStudent(jid: string): Promise<void> {
+  await prisma.itlgStudent.deleteMany({ where: { jid } });
+}
+
+
 // ─── Creator Helpers ───
 
 export async function getCreators(): Promise<string[]> {

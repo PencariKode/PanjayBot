@@ -44,15 +44,17 @@ export const botConfig = {
     orders: path.resolve(rootDir, envString("ORDERS_DB_PATH", "database/orders.json")),
     premiumUsers: path.resolve(rootDir, envString("PREMIUM_DB_PATH", "database/premium.json")),
     creators: path.resolve(rootDir, envString("CREATOR_DB_PATH", "database/creator.json")),
+    itlgStudents: path.resolve(rootDir, envString("ITLG_STUDENT_DB_PATH", "database/itlg_students.json")),    
     pluginState: path.resolve(rootDir, envString("PLUGIN_STATE_PATH", "database/system/plugins.json")),
   },
   branding: {
-    footer: envString("BOT_FOOTER", "Panjay From Scratch"),
+    footer: envString("BOT_FOOTER", "Panjay Bot"),
     startupTitle: envString("STARTUP_TITLE", "Script Panjay Rebuild"),
     baseName: envString("BASE_NAME", "Panjay"),
   },
   database: {
-    sessionStore: envString("SESSION_STORE", "file") as "file" | "database",
+      sessionStore: envString("SESSION_STORE", "file") as "file" | "database",
+      dataStore: envString("DATA_STORE", "file") as "file" | "database",
   },
   messages: {
     wait: envString("MSG_WAIT", "╭─〔 *WAIT* 〕\n│ ◇ One moment, please.\n╰────────────"),

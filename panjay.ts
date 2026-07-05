@@ -323,6 +323,8 @@ export default async function handler(
   // Premium
   const isPremium = await dataStore.isPremiumUser(normalizedSender);
 
+  const isItlgStudent = await dataStore.isITLGStudent(normalizedSender);
+
   // Creator
   const isPanjay = await dataStore.isCreator(normalizedSender);
 
@@ -410,7 +412,7 @@ export default async function handler(
     );
 
   // Label Menu
-  type PluginLabel = "Public" | "Owner" | "Premium" | "Admin" | "BotAdmin" | "Group" | "Private";
+  type PluginLabel = "Public" | "Owner" | "Premium" | "Admin" | "BotAdmin" | "Group" | "Private" | "ITLG";
 
   function getLabel(info: PluginInfo): PluginLabel {
     if (info.owner) return "Owner";
@@ -419,25 +421,30 @@ export default async function handler(
     if (info.botAdmin) return "BotAdmin";
     if (info.group) return "Group";
     if (info.private) return "Private";
+    if (info.itlg) return "ITLG";
     return "Public";
   }
 
   const labelPriority: Record<PluginLabel, number> = {
     Public: 0,
     Owner: 1,
-    Premium: 2,
-    Admin: 3,
-    BotAdmin: 4,
-    Group: 5,
-    Private: 6,
+    ITLG: 2,
+    Premium: 3,
+    Admin: 4,
+    BotAdmin: 5,
+    Group: 6,
+    Private: 7,
   };
 
   // All Menu
   if (command === "allmenu") {
     let text = globalThis.panjaymenu;
+    console.log("ANJAY", isItlgStudent)
 
     for (let [cat, list] of categories) {
-      const visible = list.filter((i) => !i.hidden);
+      let visible = list.filter((i) => !i.hidden);
+      if (!isItlgStudent && cat.toLowerCase() === "itlg") continue;
+      console.log(cat)
       if (visible.length === 0) continue;
 
       text += `\n╭─〔 *${cat.toUpperCase()}* 〕\n`;
@@ -457,13 +464,13 @@ export default async function handler(
           const label = getLabel(item);
           let tag = label !== "Public" ? ` [${label}]` : "";
 
-          if (item.maintenance) tag += " [Main]";
-          if (item.enabled === false) tag += " [Off]";
+          if (item.maintenance) tag += " [MTNC]";
+          if (item.enabled === false) tag += " [OFF]";
 
           item.menu
             .sort((a, b) => a.localeCompare(b))
             .forEach((cmd) => {
-              text += `│ › .${cmd}${tag}\n`;
+              text += `│ › .${cmd.toLowerCase()}${tag}\n`;
             });
         });
 
@@ -482,7 +489,7 @@ export default async function handler(
   }
 
   // Category Menu
-  if (command === "menu") {
+  if (command === "menu" || command === "help") {
     const casePath = path.join(__dirname, "case");
     const folders = fs
       .readdirSync(casePath)
@@ -495,7 +502,8 @@ export default async function handler(
     folders
       .sort((a, b) => a.localeCompare(b))
       .forEach((folder) => {
-        text += `│ › ${folder.toUpperCase()}MENU\n`;
+        if ((folder.toLowerCase() === "itlg") && !isItlgStudent) return;
+        text += `│ › .${folder.toLowerCase()}menu\n`;
       });
 
     text += "╰────────────\n";
@@ -541,7 +549,7 @@ export default async function handler(
         item.menu
           .sort((a, b) => a.localeCompare(b))
           .forEach((cmd) => {
-            text += `│ › .${cmd}${tag}\n`;
+            text += `│ › .${cmd.toLowerCase()}${tag}\n`;
           });
       });
 

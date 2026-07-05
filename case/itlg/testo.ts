@@ -1,17 +1,13 @@
-import type { PluginContext, PluginInfo } from "../types.ts";
-
-
-// Import Dependency (Jika Ada)
-import axios from "axios";
+import type { PluginContext, PluginInfo } from "../../types.ts";
 
 // Metadata
 export const info: PluginInfo = {
-  name: "Nama Fitur",
+  name: "Testo ITLG",
 
-  menu: ["panjay"],
-  case: ["panjay", "panjay1", "alias2"],
+  menu: ["testo"],
+  case: ["testo", "itlg"],
 
-  description: "Penjelasan Singkat Fitur",
+  description: "Entah ITLG",
   hidden: false,
 
   owner: false,
@@ -52,12 +48,5 @@ export default async function handler(panjy: PluginContext) {
     isPanjay,
   } = panjy;
 
-  switch (command) {
-    case "panjay":
-    case "panjay1":
-      {
-        // Logic Di Sini
-      }
-      break;
-  }
+  PanjayReact("🗿");
 }

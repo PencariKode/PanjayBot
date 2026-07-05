@@ -100,6 +100,7 @@ export interface PluginInfo {
   admin?: boolean;
   botAdmin?: boolean;
   allowPrivate?: boolean;
+  itlg?: boolean;
   enabled?: boolean;
   maintenance?: boolean;
 }
