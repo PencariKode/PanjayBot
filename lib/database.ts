@@ -52,11 +52,11 @@ export async function getITLGStudents(): Promise<string[]> {
   return rows.map((r: { jid: string }) => r.jid);
 }
 
-export async function addITLGStudent(jid: string): Promise<void> {
+export async function addITLGStudent(jid: string, isRealNum: boolean, name: string, nim: string): Promise<void> {
   await prisma.itlgStudent.upsert({
     where: { jid },
-    update: {},
-    create: { jid },
+    update: {isRealNum, name, nim},
+    create: { jid, isRealNum, name, nim },
   });
 }
 

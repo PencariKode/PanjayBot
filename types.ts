@@ -152,7 +152,7 @@ export interface PluginContext {
   PanjayImage: (url: string, caption?: string) => Promise<unknown>;
   PanjayAudio: (url: string, ptt?: boolean) => Promise<unknown>;
   PanjayFile: (buffer: Buffer, fileName: string, mime: string) => Promise<unknown>;
-  PanjayReact: (emoji: string) => Promise<unknown>;
+  PanjayReact: (emoji: string | undefined) => Promise<unknown>;
   mediaType: string | null;
   isGroup: boolean;
   isAdmin: boolean;

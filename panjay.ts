@@ -24,6 +24,7 @@ import type {
   PluginModule,
   QuotedContactMessage,
 } from "./types.ts";
+import reactList from "./lib/reactList.ts";
 
 // Track Messages
 const processedMessages = new Set<string>();
@@ -404,12 +405,14 @@ export default async function handler(
       { quoted: msg },
     );
 
-  const PanjayReact = (emoji: string) =>
-    panjay.sendMessage(
+  const PanjayReact = (emoji: string | undefined) => {
+    emoji = emoji === undefined ? emoji : emoji in reactList ? reactList[emoji] : emoji;
+    return panjay.sendMessage(
       replyJid,
       { react: { text: emoji, key: msg.key } },
       { quoted: msg },
     );
+  }
 
   // Label Menu
   type PluginLabel = "Public" | "Owner" | "Premium" | "Admin" | "BotAdmin" | "Group" | "Private" | "ITLG";

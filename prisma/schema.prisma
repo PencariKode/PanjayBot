@@ -34,6 +34,9 @@ model Creator {
 model itlgStudent {
   id        Int      @id @default(autoincrement())
   jid       String   @unique
+  isRealNum  Boolean  @default(false)
+  name      String?
+  nim       String?   @db.Char(9)
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("itlg_students")

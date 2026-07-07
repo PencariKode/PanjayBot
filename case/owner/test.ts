@@ -47,8 +47,9 @@ export default async function handler(panjy: PluginContext) {
   } = panjy;
 
   // console.log(msg.message?.extendedTextMessage?.contextInfo);
-  console.log("TESTING", msg);
+  // console.log("TESTING", msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.documentWithCaptionMessage?.message?.documentMessage);
 
+  console.log("TESTING", q, q.length, msg);
   // await panjay.sendMessage(
   //   replyJid,
   //   {
@@ -61,6 +62,6 @@ export default async function handler(panjy: PluginContext) {
 
 
   // await panjay.sendMessage(replyJid, { react: { text: "✅", key: msg.key } });
-  await PanjayReact("♱");
+  await PanjayReact("🗿");
   
 }
