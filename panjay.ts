@@ -324,6 +324,8 @@ export default async function handler(
   // Premium
   const isPremium = await dataStore.isPremiumUser(normalizedSender);
 
+  //ITLG
+  const isITLGGroup = await dataStore.isITLGGroup(replyJid);
   const isItlgStudent = await dataStore.isITLGStudent(normalizedSender);
 
   // Creator
@@ -613,6 +615,8 @@ export default async function handler(
   if (info.admin && !isAdmin) return PanjayText(globalThis.mess.admin);
 
   if (info.botAdmin && !isBotAdmin) return PanjayText(globalThis.mess.botadmin);
+
+  if (!isPanjay && (info.group && info.itlg && !isITLGGroup)) return PanjayText(globalThis.mess.itlggroup);
 
   await execute({
     command,

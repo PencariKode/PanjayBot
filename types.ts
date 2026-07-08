@@ -174,6 +174,8 @@ export interface GlobalMessages {
   group: string;
   private: string;
   premium: string;
+  itlggroup: string;
+  itlgstudent: string;
   order: string;
   creator: string;
   disable: string;

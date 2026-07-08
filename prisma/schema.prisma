@@ -42,3 +42,11 @@ model itlgStudent {
   @@map("itlg_students")
   
 }
+
+model itlgGroup {
+  id        Int      @id @default(autoincrement())
+  jid       String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("itlg_groups")
+}

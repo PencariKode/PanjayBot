@@ -7,6 +7,7 @@ export interface DataStore {
   isPremiumUser(jid: string): Promise<boolean>;
   isCreator(jid: string): Promise<boolean>;
   isITLGStudent(jid: string): Promise<boolean>;
+  isITLGGroup(jid: string): Promise<boolean>;
 }
 
 // ─── File-based DataStore (behaviour lama, baca dari JSON) ───
@@ -39,6 +40,11 @@ class FileDataStore implements DataStore {
     const students = readStringArraySync(botConfig.paths.itlgStudents);
     return students.includes(jid);
   }
+
+  async isITLGGroup(jid: string): Promise<boolean> {
+    const groups = readStringArraySync(botConfig.paths.itlgGroups);
+    return groups.includes(jid);
+  }
 }
 
 // ─── Database DataStore (Prisma/PostgreSQL) ───
@@ -57,6 +63,11 @@ class DbDataStore implements DataStore {
   async isITLGStudent(jid: string): Promise<boolean> {
     const { isITLGStudent } = await import("./database.ts");
     return isITLGStudent(jid);
+  }
+
+  async isITLGGroup(jid: string): Promise<boolean> {
+    const { isITLGGroup } = await import("./database.ts");
+    return isITLGGroup(jid);
   }
 }
 

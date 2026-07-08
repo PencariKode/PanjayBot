@@ -45,6 +45,7 @@ export const botConfig = {
     premiumUsers: path.resolve(rootDir, envString("PREMIUM_DB_PATH", "database/premium.json")),
     creators: path.resolve(rootDir, envString("CREATOR_DB_PATH", "database/creator.json")),
     itlgStudents: path.resolve(rootDir, envString("ITLG_STUDENT_DB_PATH", "database/itlg_students.json")),    
+    itlgGroups: path.resolve(rootDir, envString("ITLG_GROUP_DB_PATH", "database/itlg_groups.json")),    
     pluginState: path.resolve(rootDir, envString("PLUGIN_STATE_PATH", "database/system/plugins.json")),
   },
   branding: {
@@ -65,6 +66,8 @@ export const botConfig = {
     group: envString("MSG_GROUP", "╭─〔 *GROUP ONLY* 〕\n│ ◇ Fitur ini hanya bisa digunakan di grup.\n╰────────────"),
     private: envString("MSG_PRIVATE", "╭─〔 *PRIVATE ONLY* 〕\n│ ◇ Fitur ini hanya bisa digunakan di private chat.\n╰────────────"),
     premium: envString("MSG_PREMIUM", "╭─〔 *PREMIUM ONLY* 〕\n│ ◇ Fitur ini khusus user premium.\n╰────────────"),
+    itlggroup: envString("MSG_ITLG_GROUP", "╭─〔 *ITLG GROUP ONLY* 〕\n│ ◇ Fitur ini hanya bisa digunakan di grup ITLG yang terdaftar.\n╰────────────"),
+    itlgstudent: envString("MSG_ITLG_STUDENT", "╭─〔 *ITLG STUDENT ONLY* 〕\n│ ◇ Fitur ini hanya bisa digunakan oleh mahasiswa ITLG\n│ ◇ Silahkan enroll terlebih dahulu!\n╰────────────"),
     order: envString("MSG_ORDER", "╭─〔 *PRIVATE PAYMENT* 〕\n│ ◇ Pembayaran hanya bisa dilakukan di private chat.\n╰────────────"),
     creator: envString("MSG_CREATOR", "╭─〔 *OWNER ONLY* 〕\n│ ◇ Fitur ini khusus owner.\n╰────────────"),
     disable: envString("MSG_DISABLE", "╭─〔 *DISABLED* 〕\n│ ◇ Fitur ini sedang dinonaktifkan.\n╰────────────"),

@@ -64,6 +64,30 @@ export async function removeITLGStudent(jid: string): Promise<void> {
   await prisma.itlgStudent.deleteMany({ where: { jid } });
 }
 
+// ─── ITLG Groups Helpers ───
+
+export async function isITLGGroup(jid: string): Promise<boolean> {
+  const row = await prisma.itlgGroup.findUnique({ where: { jid } });
+  return row !== null;
+}
+
+export async function getITLGGroups(): Promise<string[]> {
+  const rows = await prisma.itlgGroup.findMany({ select: { jid: true } });
+  return rows.map((r: { jid: string }) => r.jid);
+}
+
+export async function addITLGGroup(jid: string): Promise<void> {
+  await prisma.itlgGroup.upsert({
+    where: { jid },
+    update: { },
+    create: { jid },
+  });
+}
+
+export async function removeITLGGroup(jid: string): Promise<void> {
+  await prisma.itlgGroup.deleteMany({ where: { jid } });
+}
+
 
 // ─── Creator Helpers ───
 
