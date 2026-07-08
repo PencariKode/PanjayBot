@@ -14,6 +14,7 @@ export const botConfig = {
   owner: {
     name: envString("OWNER_NAME", "Panji Depari"),
     contact: envString("OWNER_CONTACT", "wa.me/6287869164526"),
+    jid: envString("OWNER_JID", "6287869164526@s.whatsapp.net"),
     stickerContact: envString("STICKER_OWNER_CONTACT", "Bot: 0838-4034-9166"),
     email: envString("OWNER_EMAIL", "pencaricode@gmail.com"),
     instagram: envString("OWNER_INSTAGRAM", "panjidepari"),
