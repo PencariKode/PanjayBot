@@ -6,7 +6,7 @@ export const info: PluginInfo = {
   name: "Assign group so the group can use ITLG commands",
 
   menu: ["assigngroup"],
-  case: ["assignitlg", "itlggroup", "itlggrup", "assigngrup"],
+  case: ["assignitlg","assigngroup", "itlggroup", "itlggrup", "assigngrup"],
 
   description: "Penjelasan Singkat Fitur",
   hidden: true,

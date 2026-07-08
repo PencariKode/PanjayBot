@@ -1,8 +1,10 @@
 import type {
+  AuthenticationCreds,
   GroupMetadata,
   proto,
   WAMessage,
   WAMessageKey,
+  WASocket
 } from "@whiskeysockets/baileys";
 import type { CommandResponseOptions } from "./lib/response.ts";
 
@@ -28,9 +30,7 @@ export interface DownloadableMessage {
 
 export interface PanjaySocket {
   authState: {
-    creds: {
-      registered: boolean;
-    };
+    creds: AuthenticationCreds;
   };
   user?: {
     id: string;
@@ -40,7 +40,9 @@ export interface PanjaySocket {
     on(event: "creds.update", listener: () => Awaitable<void>): void;
     on(
       event: "connection.update",
-      listener: (update: { connection?: "close" | "open" | string }) => Awaitable<void>,
+      listener: (update: {
+        connection?: "close" | "open" | string;
+      }) => Awaitable<void>,
     ): void;
     on(
       event: "messages.upsert",
@@ -73,7 +75,11 @@ export interface PanjaySocket {
     participants: string[],
     action: "add" | "remove" | "promote" | "demote",
   ): Promise<unknown>;
-  relayMessage(jid: string, message: proto.IMessage, options: unknown): Promise<unknown>;
+  relayMessage(
+    jid: string,
+    message: proto.IMessage,
+    options: unknown,
+  ): Promise<unknown>;
 }
 
 export interface MessageUpsert {
@@ -138,7 +144,7 @@ export interface PluginContext {
   command: string;
   args: string[];
   q: string;
-  panjay: PanjaySocket;
+  panjay: WASocket;
   m: MessageUpsert;
   msg: WAMessage;
   len: QuotedContactMessage;
@@ -151,7 +157,11 @@ export interface PluginContext {
   PanjayVideo: (url: string, caption?: string) => Promise<unknown>;
   PanjayImage: (url: string, caption?: string) => Promise<unknown>;
   PanjayAudio: (url: string, ptt?: boolean) => Promise<unknown>;
-  PanjayFile: (buffer: Buffer, fileName: string, mime: string) => Promise<unknown>;
+  PanjayFile: (
+    buffer: Buffer,
+    fileName: string,
+    mime: string,
+  ) => Promise<unknown>;
   PanjayReact: (emoji: string | undefined) => Promise<unknown>;
   mediaType: string | null;
   isGroup: boolean;
@@ -162,7 +172,10 @@ export interface PluginContext {
   plugins: PluginHandler[];
   commands: Map<string, PluginCommand>;
   normalizedSender: string;
-  deleteMessage: (msgKey: WAMessageKey | undefined, tag?: string) => Promise<void>;
+  deleteMessage: (
+    msgKey: WAMessageKey | undefined,
+    tag?: string,
+  ) => Promise<void>;
 }
 
 export interface GlobalMessages {

@@ -6,7 +6,7 @@ import "./database/Menu/PanjayMenu.ts";
 
 // [ ===== Import Pustaka ===== ]
 import fs from "fs";
-import { type GroupMetadata, jidNormalizedUser, type WAMessageKey } from "@whiskeysockets/baileys";
+import { type GroupMetadata, jidNormalizedUser, type WAMessageKey, WASocket } from "@whiskeysockets/baileys";
 import path from "path";
 import chalk from "chalk";
 import { fileURLToPath } from "url";
@@ -184,7 +184,7 @@ watchPlugins();
 
 // Export Handler
 export default async function handler(
-  panjay: PanjaySocket,
+  panjay: WASocket,
   m: MessageUpsert,
   meta: HandlerMeta,
 ): Promise<unknown> {
@@ -411,7 +411,7 @@ export default async function handler(
     emoji = emoji === undefined ? emoji : emoji in reactList ? reactList[emoji] : emoji;
     return panjay.sendMessage(
       replyJid,
-      { react: { text: emoji, key: msg.key } },
+      { react: { text: emoji ?? "", key: msg.key } },
       { quoted: msg },
     );
   }

@@ -52,11 +52,25 @@ export async function getITLGStudents(): Promise<string[]> {
   return rows.map((r: { jid: string }) => r.jid);
 }
 
-export async function addITLGStudent(jid: string, isRealNum: boolean, name: string, nim: string): Promise<void> {
+export async function addITLGStudent(
+  jid: string,
+  isRealNum?: boolean,
+  name?: string | null,
+  nim?: string | null,
+): Promise<void> {
   await prisma.itlgStudent.upsert({
     where: { jid },
-    update: {isRealNum, name, nim},
-    create: { jid, isRealNum, name, nim },
+    update: {
+      ...(isRealNum !== undefined ? { isRealNum } : {}),
+      ...(name !== undefined ? { name } : {}),
+      ...(nim !== undefined ? { nim } : {}),
+    },
+    create: {
+      jid,
+      isRealNum: isRealNum ?? false,
+      name: name ?? null,
+      nim: nim ?? null,
+    },
   });
 }
 
@@ -79,7 +93,7 @@ export async function getITLGGroups(): Promise<string[]> {
 export async function addITLGGroup(jid: string): Promise<void> {
   await prisma.itlgGroup.upsert({
     where: { jid },
-    update: { },
+    update: {},
     create: { jid },
   });
 }
@@ -87,7 +101,6 @@ export async function addITLGGroup(jid: string): Promise<void> {
 export async function removeITLGGroup(jid: string): Promise<void> {
   await prisma.itlgGroup.deleteMany({ where: { jid } });
 }
-
 
 // ─── Creator Helpers ───
 
