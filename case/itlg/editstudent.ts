@@ -2,9 +2,12 @@ import type { PluginContext, PluginInfo } from "../../types.ts";
 import type { proto } from "@whiskeysockets/baileys";
 import { downloadContentFromMessage } from "@whiskeysockets/baileys";
 import { parse, Row } from "@fast-csv/parse";
-import { addITLGStudent } from "../../lib/database.ts";
+import {
+  addITLGStudent,
+  findITLGStudentByJid,
+} from "../../lib/database.ts";
 
-type StudentRow = {
+type EditRow = {
   nowa: string;
   nim?: string;
   namalengkap?: string;
@@ -12,24 +15,22 @@ type StudentRow = {
 };
 
 export const info: PluginInfo = {
-  name: "Add ITLG Students",
-  menu: ["addstudent <nowa> [--nim <nim>] [--nama <nama>] [--verified <0|1>]"],
-  case: [
-    "addstudent",
-    "tambahstudent",
-    "additlgstudent",
-    "csvstudent",
-    "itlgcsv",
-  ],
-  description: "Menambahkan student ke dalam database",
+  name: "Edit ITLG Student",
+
+  menu: ["editstudent <nowa> [--nim <nim>] [--nama <nama>] [--verified <0|1>]"],
+  case: ["editstudent", "edititlg"],
+
+  description: "Edit data ITLG student (satu per satu atau massal via CSV)",
   hidden: true,
+
   owner: true,
   premium: false,
   group: false,
   private: false,
   admin: false,
   botAdmin: false,
-  itlg: true,
+  itlg: false,
+
   allowPrivate: true,
 };
 
@@ -66,10 +67,12 @@ export default async function handler(panjy: PluginContext) {
 
     try {
       const csv = await downloadCSVToString(docMess);
-      const totalRows = await csvParser(csv);
+      const { updated, skipped } = await csvEditParser(csv);
       await PanjayReact("✅");
       return panjay.sendMessage(replyJid, {
-        text: `Berhasil menambahkan *${totalRows}* mahasiswa dari file CSV`,
+        text:
+          `Berhasil mengubah *${updated}* data mahasiswa dari file CSV` +
+          (skipped > 0 ? `\n_${skipped} baris dilewati (nomor tidak ditemukan)_` : ""),
       });
     } catch (err) {
       await PanjayReact("err");
@@ -88,7 +91,7 @@ export default async function handler(panjy: PluginContext) {
     return PanjayInvalid({
       title: "NO INPUT",
       message:
-        "Gunakan format teks untuk menambah satu mahasiswa, atau kirim file CSV untuk tambah massal.",
+        "Gunakan format teks untuk edit satu mahasiswa, atau kirim file CSV untuk edit massal.",
       usage:
         `${command} <no telp> [--nim <nim>] [--nama <nama lengkap>] [--verified <0|1>]\n` +
         `atau kirimkan file CSV dengan header: nowa,nim,namalengkap,isverified`,
@@ -96,15 +99,18 @@ export default async function handler(panjy: PluginContext) {
     });
   }
 
+  // Cek apakah teks raw CSV
   const isRawCsv =
     /(?=[^]*\bnowa\b)(,[a-z]+){1,3}/.test(q.toLowerCase().split("\n")[0] ?? "");
 
   if (isRawCsv) {
     try {
-      const totalRows = await csvParser(q.trim());
+      const { updated, skipped } = await csvEditParser(q.trim());
       await PanjayReact("✅");
       return panjay.sendMessage(replyJid, {
-        text: `Berhasil menambahkan *${totalRows}* mahasiswa dari teks CSV`,
+        text:
+          `Berhasil mengubah *${updated}* data mahasiswa dari teks CSV` +
+          (skipped > 0 ? `\n_${skipped} baris dilewati (nomor tidak ditemukan)_` : ""),
       });
     } catch (err) {
       await PanjayReact("err");
@@ -118,6 +124,8 @@ export default async function handler(panjy: PluginContext) {
     }
   }
 
+  // ── Mode satu per satu (flag-based) ────────────────────────────────────────
+  // Format: editstudent <nowa> [--nim <nim>] [--nama <nama>] [--verified <0|1>]
   const rawArgs = [...args] as string[];
   const nowa = rawArgs.shift()!;
 
@@ -136,24 +144,45 @@ export default async function handler(panjy: PluginContext) {
     });
   }
 
-  try {
-    await addStudentByNowa(nowa, isVerified, nama, nim);
-    const changes: string[] = [`Nomor → *${nowa}*`];
-    if (nim) changes.push(`NIM → *${nim}*`);
-    if (nama) changes.push(`Nama → *${nama}*`);
-    changes.push(`Verified → *${isVerified ? "Ya" : "Tidak"}*`);
-
-    await PanjayReact("✅");
-    return panjayreply(`Berhasil menambahkan mahasiswa:\n${changes.join("\n")}`);
-  } catch (err) {
+  if (!nim && !nama && isVerified === undefined) {
     await PanjayReact("err");
     return PanjayInvalid({
-      title: "ERROR",
-      message:
-        err instanceof Error
-          ? err.message
-          : "Terjadi kesalahan saat menambahkan mahasiswa",
+      title: "TIDAK ADA PERUBAHAN",
+      message: "Tentukan minimal satu field yang ingin diubah: --nim, --nama, atau --verified",
+      usage: `${command} <no telp> [--nim <nim>] [--nama <nama>] [--verified <0|1>]`,
     });
+  }
+
+  let jid = nowa.replace(/[+ -]/g, "");
+  if (jid.startsWith("08")) jid = "62" + jid.substring(1);
+  if (!jid.endsWith("@s.whatsapp.net")) jid += "@s.whatsapp.net";
+
+  try {
+    const student = await findITLGStudentByJid(jid);
+    if (!student) {
+      await PanjayReact("err");
+      return PanjayInvalid({
+        title: "MAHASISWA TIDAK DITEMUKAN",
+        message: `Nomor *${nowa}* tidak terdaftar dalam database ITLG.`,
+      });
+    }
+
+    await addITLGStudent(jid, isVerified, nama ?? undefined, nim ?? undefined);
+
+    const changes: string[] = [];
+    if (nim) changes.push(`NIM → *${nim}*`);
+    if (nama) changes.push(`Nama → *${nama}*`);
+    if (isVerified !== undefined) changes.push(`Verified → *${isVerified ? "Ya" : "Tidak"}*`);
+
+    await PanjayReact("✅");
+    return panjayreply(
+      `Data mahasiswa *${nowa}* berhasil diperbarui:\n${changes.join("\n")}`,
+    );
+  } catch (err) {
+    await PanjayReact("err");
+    return panjayreply(
+      `Terjadi kesalahan: ${err instanceof Error ? err.message : err}`,
+    );
   }
 }
 
@@ -174,23 +203,6 @@ function extractFlag(args: string[], flag: string): string | undefined {
   return value;
 }
 
-function normalizeJid(nowa: string): string {
-  let jid = nowa.replace(/[+ -]/g, "");
-  if (jid.startsWith("08")) jid = "62" + jid.substring(1);
-  if (!jid.endsWith("@s.whatsapp.net")) jid += "@s.whatsapp.net";
-  return jid;
-}
-
-async function addStudentByNowa(
-  nowa: string,
-  isVerified?: boolean,
-  nama?: string | null,
-  nim?: string | null,
-) {
-  const jid = normalizeJid(nowa);
-  await addITLGStudent(jid, isVerified, nama, nim);
-}
-
 async function downloadCSVToString(docMess: proto.Message.IDocumentMessage) {
   const stream = await downloadContentFromMessage(docMess, "document");
   const chunks: Buffer[] = [];
@@ -198,25 +210,31 @@ async function downloadCSVToString(docMess: proto.Message.IDocumentMessage) {
   return Buffer.concat(chunks).toString("utf-8");
 }
 
-async function csvParser(csv: string): Promise<number> {
+async function csvEditParser(
+  csv: string,
+): Promise<{ updated: number; skipped: number }> {
   return new Promise((resolve, reject) => {
-    let rowCount = 0;
+    let updated = 0;
+    let skipped = 0;
     const promises: Promise<void>[] = [];
 
-    const parser = parse<Row, StudentRow>({
+    const parser = parse<Row, EditRow>({
       headers: (headers) =>
         headers.map((h) => h?.trim().toLowerCase().replace(/\s+/g, "")),
       ignoreEmpty: true,
     })
-      .on("data", (row: StudentRow) => {
+      .on("data", (row: EditRow) => {
         promises.push(
-          addStudentByRow(row).then(() => { rowCount++; }),
+          editStudentByRow(row).then((ok) => {
+            if (ok) updated++;
+            else skipped++;
+          }),
         );
       })
       .on("end", async () => {
         try {
           await Promise.all(promises);
-          resolve(rowCount);
+          resolve({ updated, skipped });
         } catch (err) {
           reject(err);
         }
@@ -228,17 +246,27 @@ async function csvParser(csv: string): Promise<number> {
   });
 }
 
-async function addStudentByRow(row: StudentRow) {
-  if (!row.nowa) return;
+async function editStudentByRow(row: EditRow): Promise<boolean> {
+  if (!row.nowa) return false;
 
-  const jid = normalizeJid(row.nowa);
-  const isVerified = row.isverified === "1" ? true : row.isverified === "0" ? false : undefined;
+  let jid = row.nowa.replace(/[+ -]/g, "");
+  if (jid.startsWith("08")) jid = "62" + jid.substring(1);
+  if (!jid.endsWith("@s.whatsapp.net")) jid += "@s.whatsapp.net";
+
+  const student = await findITLGStudentByJid(jid);
+  if (!student) return false;
+
+  const isVerified =
+    row.isverified === "1" ? true : row.isverified === "0" ? false : undefined;
+
   const nim = row.nim?.trim() || undefined;
   const nama = row.namalengkap?.trim() || undefined;
 
   try {
     await addITLGStudent(jid, isVerified, nama, nim);
-  } catch (error) {
-    console.error(`[addstudent] Database Error for ${jid}:`, error);
+    return true;
+  } catch (err) {
+    console.error(`[editstudent] Error updating ${jid}:`, err);
+    return false;
   }
 }

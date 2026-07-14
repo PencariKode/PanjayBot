@@ -7,7 +7,7 @@ export const info: PluginInfo = {
   menu: ["alter <nim baru> [nama baru]"],
   case: ["alter", "alteritlg"],
 
-  description: "Penjelasan Singkat Fitur",
+  description: "Fitur untuk user mengubah NIM dan Nama mereka",
   hidden: false,
 
   owner: false,
