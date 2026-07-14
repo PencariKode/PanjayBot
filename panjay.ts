@@ -184,7 +184,7 @@ watchPlugins();
 
 // Export Handler
 export default async function handler(
-  panjay: WASocket,
+  panjay: PanjaySocket,
   m: MessageUpsert,
   meta: HandlerMeta,
 ): Promise<unknown> {
@@ -220,7 +220,7 @@ export default async function handler(
   // console.log(chalk.yellow(`[DEBUG JID] Sender Auth (PN): ${sender}`));
   // console.log(chalk.green(`[DEBUG JID] Sender Normal: ${normalizedSender}`));
 
-  if (msg.key.fromMe) return;
+  // if (msg.key.fromMe) return;
 
   // Anti Double
   if (!msg.key.id) return;
@@ -329,7 +329,7 @@ export default async function handler(
   const isItlgStudent = await dataStore.isITLGStudent(normalizedSender);
 
   // Creator
-  const isPanjay = await dataStore.isCreator(normalizedSender);
+  const isPanjay = msg.key.fromMe ? msg.key.fromMe : (await dataStore.isCreator(normalizedSender));
 
   // Delete Message
   async function deleteMessage(msgKey: WAMessageKey | undefined, tag = "DELETE") {
@@ -620,6 +620,7 @@ export default async function handler(
 
   await execute({
     command,
+    usedPrefix,
     args,
     q,
     panjay,

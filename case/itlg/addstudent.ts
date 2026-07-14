@@ -5,7 +5,7 @@ import { parse, Row } from "@fast-csv/parse";
 import { addITLGStudent } from "../../lib/database.ts";
 
 type StudentRow = {
-  isrealnum: "0" | "1";
+  isverified: "0" | "1";
   nowa: string;
   nim: string;
   namalengkap: string;
@@ -90,7 +90,7 @@ export default async function handler(panjy: PluginContext) {
   }
 
   const isRawCsv =
-    /(?=[^]*\bisrealnum\b)(?=[^]*\bnowa\b)(?=[^]*\bnim\b)(?=[^]*\bnamalengkap\b)[a-z]+(,[a-z]+){3}/.test(
+    /(?=[^]*\bisverified\b)(?=[^]*\bnowa\b)(?=[^]*\bnim\b)(?=[^]*\bnamalengkap\b)[a-z]+(,[a-z]+){3}/.test(
       q.toLowerCase(),
     );
 
@@ -117,9 +117,9 @@ export default async function handler(panjy: PluginContext) {
 async function addStudentByText(args: string[]) {
   if (isNaN(Number(args[0]))) throw new Error("Invalid status");
 
-  const [isrealnum, nowa, nim, ...namaArr] = args;
+  const [isverified, nowa, nim, ...namaArr] = args;
   await addStudentByRow({
-    isrealnum: isrealnum as "0" | "1",
+    isverified: isverified as "0" | "1",
     nowa: nowa as string,
     nim: nim as string,
     namalengkap: namaArr.join(" "),
@@ -159,7 +159,7 @@ async function addStudentByRow(row: StudentRow) {
   if (!jid.endsWith("@s.whatsapp.net")) jid += "@s.whatsapp.net";
 
   try {
-    await addITLGStudent(jid, row.isrealnum === "1", row.namalengkap, row.nim);
+    await addITLGStudent(jid, row.isverified === "1", row.namalengkap, row.nim);
   } catch (error) {
     console.error("Database Error:", error);
   }

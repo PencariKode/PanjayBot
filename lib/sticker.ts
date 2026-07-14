@@ -11,7 +11,7 @@ import type { PanjaySocket, StickerInput, StickerOptions } from "../types.ts";
 import type { proto, WAMessage } from "@whiskeysockets/baileys";
 
 export default function attachSticker(panjay: PanjaySocket): void {
-  panjay.sendImageAsSticker = async (jid, path, quoted, options = {}) => {
+  panjay.sendImageAsSticker = async (jid: string, path: string | Buffer, quoted?: WAMessage, options: StickerOptions = {}) => {
     const buff = Buffer.isBuffer(path)
       ? path
       : fs.existsSync(path)
@@ -23,19 +23,19 @@ export default function attachSticker(panjay: PanjaySocket): void {
     if (options.packname || options.author) {
       buffer = await writeExifImg(buff, options);
     } else {
-      buffer = await imageToWebp(buff);
+      buffer = await imageToWebp(buff) as Buffer;
     }
 
     await panjay.sendMessage(
       jid,
-      { sticker: { url: buffer }, ...options },
-      { quoted },
+      { sticker: typeof buffer === "string" ? { url: buffer} : buffer, ...options },
+      quoted ? { quoted } : undefined,
     );
 
     return buffer;
   };
 
-  panjay.sendVideoAsSticker = async (jid, path, quoted, options = {}) => {
+  panjay.sendVideoAsSticker = async (jid: string, path: string | Buffer, quoted?: WAMessage, options: StickerOptions = {}) => {
     const buff = Buffer.isBuffer(path)
       ? path
       : fs.existsSync(path)
@@ -52,8 +52,8 @@ export default function attachSticker(panjay: PanjaySocket): void {
 
     await panjay.sendMessage(
       jid,
-      { sticker: { url: buffer }, ...options },
-      { quoted },
+      { sticker: typeof buffer === "string" ? { url: buffer} : buffer, ...options },
+      quoted ? { quoted } : undefined,
     );
 
     return buffer;

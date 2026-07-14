@@ -28,58 +28,73 @@ export interface DownloadableMessage {
   mtype?: string;
 }
 
-export interface PanjaySocket {
-  authState: {
-    creds: AuthenticationCreds;
-  };
-  user?: {
-    id: string;
-    lid?: string;
-  };
-  ev: {
-    on(event: "creds.update", listener: () => Awaitable<void>): void;
-    on(
-      event: "connection.update",
-      listener: (update: {
-        connection?: "close" | "open" | string;
-      }) => Awaitable<void>,
-    ): void;
-    on(
-      event: "messages.upsert",
-      listener: (message: MessageUpsert) => Awaitable<void>,
-    ): void;
-  };
-  requestPairingCode(phoneNumber: string): Promise<string>;
-  sendMessage(
-    jid: string,
-    content: unknown,
-    options?: unknown,
-  ): Promise<unknown>;
-  groupMetadata(jid: string): Promise<GroupMetadata>;
-  profilePictureUrl(jid: string, type: "image" | "preview"): Promise<string>;
+// export interface PanjaySocket {
+//   authState: {
+//     creds: AuthenticationCreds;
+//   };
+//   user?: {
+//     id: string;
+//     lid?: string;
+//   };
+//   ev: {
+//     on(event: "creds.update", listener: () => Awaitable<void>): void;
+//     on(
+//       event: "connection.update",
+//       listener: (update: {
+//         connection?: "close" | "open" | string;
+//       }) => Awaitable<void>,
+//     ): void;
+//     on(
+//       event: "messages.upsert",
+//       listener: (message: MessageUpsert) => Awaitable<void>,
+//     ): void;
+//   };
+//   requestPairingCode(phoneNumber: string): Promise<string>;
+//   sendMessage(
+//     jid: string,
+//     content: unknown,
+//     options?: unknown,
+//   ): Promise<unknown>;
+//   groupMetadata(jid: string): Promise<GroupMetadata>;
+//   profilePictureUrl(jid: string, type: "image" | "preview"): Promise<string>;
+//   downloadMediaMessage(message: unknown): Promise<Buffer>;
+//   sendImageAsSticker(
+//     jid: string,
+//     path: StickerInput,
+//     quoted: unknown,
+//     options?: StickerOptions,
+//   ): Promise<Buffer | string>;
+//   sendVideoAsSticker(
+//     jid: string,
+//     path: StickerInput,
+//     quoted: unknown,
+//     options?: StickerOptions,
+//   ): Promise<Buffer | string>;
+//   groupParticipantsUpdate(
+//     jid: string,
+//     participants: string[],
+//     action: "add" | "remove" | "promote" | "demote",
+//   ): Promise<unknown>;
+//   relayMessage(
+//     jid: string,
+//     message: proto.IMessage,
+//     options: unknown,
+//   ): Promise<unknown>;
+// }
+export interface PanjaySocket extends WASocket {
   downloadMediaMessage(message: unknown): Promise<Buffer>;
   sendImageAsSticker(
     jid: string,
     path: StickerInput,
-    quoted: unknown,
+    quoted?: WAMessage,
     options?: StickerOptions,
   ): Promise<Buffer | string>;
   sendVideoAsSticker(
     jid: string,
     path: StickerInput,
-    quoted: unknown,
+    quoted?: WAMessage,
     options?: StickerOptions,
   ): Promise<Buffer | string>;
-  groupParticipantsUpdate(
-    jid: string,
-    participants: string[],
-    action: "add" | "remove" | "promote" | "demote",
-  ): Promise<unknown>;
-  relayMessage(
-    jid: string,
-    message: proto.IMessage,
-    options: unknown,
-  ): Promise<unknown>;
 }
 
 export interface MessageUpsert {
@@ -142,9 +157,10 @@ export interface QuotedContactMessage {
 
 export interface PluginContext {
   command: string;
+  usedPrefix: string | null;
   args: string[];
   q: string;
-  panjay: WASocket;
+  panjay: PanjaySocket;
   m: MessageUpsert;
   msg: WAMessage;
   len: QuotedContactMessage;

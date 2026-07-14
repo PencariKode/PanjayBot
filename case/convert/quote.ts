@@ -54,7 +54,7 @@ export default async function handler(panjy: PluginContext) {
           let ppUrl: string;
 
           try {
-            ppUrl = await panjay.profilePictureUrl(sender, "image");
+            ppUrl = await panjay.profilePictureUrl(sender, "image") ?? "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
           } catch {
             ppUrl =
               "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";

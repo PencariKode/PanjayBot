@@ -52,22 +52,36 @@ export async function getITLGStudents(): Promise<string[]> {
   return rows.map((r: { jid: string }) => r.jid);
 }
 
+export async function findITLGStudentByJid(jid: string){
+  const row = await prisma.itlgStudent.findUnique({ where: { jid } });
+  return row ?? null;
+}
+export async function findITLGStudentByNIM(nim: string){
+  const rows = await prisma.itlgStudent.findMany({ where: { nim } });
+  return rows ?? null;
+}
+
+export async function checkITLGVerification(jid: string): Promise<boolean|null> {
+  const row = await prisma.itlgStudent.findUnique({ where: { jid } });
+  return row?.isVerified ?? null;
+}
+
 export async function addITLGStudent(
   jid: string,
-  isRealNum?: boolean,
+  isVerified?: boolean,
   name?: string | null,
   nim?: string | null,
 ): Promise<void> {
   await prisma.itlgStudent.upsert({
     where: { jid },
     update: {
-      ...(isRealNum !== undefined ? { isRealNum } : {}),
+      ...(isVerified !== undefined ? { isVerified } : {}),
       ...(name !== undefined ? { name } : {}),
       ...(nim !== undefined ? { nim } : {}),
     },
     create: {
       jid,
-      isRealNum: isRealNum ?? false,
+      isVerified: isVerified ?? false,
       name: name ?? null,
       nim: nim ?? null,
     },
