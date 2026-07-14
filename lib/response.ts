@@ -1,6 +1,6 @@
 export interface CommandResponseOptions {
   prefix?: string | null;
-  command?: string;
+  command?: string | null;
   title?: string;
   message: string;
   usage?: string;
@@ -9,6 +9,26 @@ export interface CommandResponseOptions {
   examples?: string[];
   details?: string | string[];
   footer?: string;
+}
+
+function wrapText(text: string, maxWidth: number, continuationPrefix: string): string {
+  const words = text.split(" ");
+  const lines: string[] = [];
+  let currentLine = "";
+
+  for (const word of words) {
+    if (currentLine === "") {
+      currentLine = word;
+    } else if ((currentLine + " " + word).length <= maxWidth) {
+      currentLine += " " + word;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+  if (currentLine) lines.push(currentLine);
+
+  return lines.join("\n" + continuationPrefix);
 }
 
 function cleanLine(value: string): string {
@@ -29,9 +49,10 @@ function formatExample(prefix: string, example: string): string {
 
 export function formatCommandResponse(options: CommandResponseOptions): string {
   const prefix = options.prefix ?? "";
-  const command = options.command ?? "";
+  const command = options.command;
   const title = options.title ?? "COMMAND NOTICE";
-  const lines = [`╭─〔 *${title}* 〕`, `│ ◇ ${cleanLine(options.message)}`];
+  const wrappedMessage = wrapText(cleanLine(options.message), 35, "│   ");
+  const lines = [`╭─〔 *${title}* 〕`, `│ ◇ ${wrappedMessage}`];
 
   const examples = [
     ...(options.example ? [options.example] : []),
@@ -40,8 +61,8 @@ export function formatCommandResponse(options: CommandResponseOptions): string {
     .map((example) => formatExample(prefix, example))
     .filter((example) => example.length > 0);
 
-  const commandLine = formatCommand(prefix, command);
-  if (commandLine && examples.length === 0) lines.push(`│ ◇ Perintah : *${commandLine}*`);
+  const commandLine = formatCommand(prefix, command ?? "");
+  if (command !== null && commandLine && examples.length === 0) lines.push(`│ ◇ Perintah : *${commandLine}*`);
 
   if (options.usage) {
     lines.push(`│ ◇ Format   : ${options.usage.trim()}`);
