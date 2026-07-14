@@ -1,8 +1,13 @@
 import type { PluginContext, PluginInfo } from "../../types.ts";
 import type { proto } from "@whiskeysockets/baileys";
-import { downloadContentFromMessage } from "@whiskeysockets/baileys";
 import { parse, Row } from "@fast-csv/parse";
 import { addITLGStudent } from "../../lib/database.ts";
+import {
+  downloadDocumentAsString,
+  extractFlag,
+  isNowaCsv,
+  normalizeJid,
+} from "../../lib/utils.ts";
 
 type StudentRow = {
   nowa: string;
@@ -65,7 +70,7 @@ export default async function handler(panjy: PluginContext) {
     }
 
     try {
-      const csv = await downloadCSVToString(docMess);
+      const csv = await downloadDocumentAsString(docMess);
       const totalRows = await csvParser(csv);
       await PanjayReact("✅");
       return panjay.sendMessage(replyJid, {
@@ -96,8 +101,7 @@ export default async function handler(panjy: PluginContext) {
     });
   }
 
-  const isRawCsv =
-    /(?=[^]*\bnowa\b)(,[a-z]+){1,3}/.test(q.toLowerCase().split("\n")[0] ?? "");
+  const isRawCsv = isNowaCsv(q);
 
   if (isRawCsv) {
     try {
@@ -122,7 +126,7 @@ export default async function handler(panjy: PluginContext) {
   const nowa = rawArgs.shift()!;
 
   const nim = extractFlag(rawArgs, "--nim");
-  const nama = extractFlag(rawArgs, "--nama");
+  const nama = extractFlag(rawArgs, "--nama", true);
   const verifiedFlag = extractFlag(rawArgs, "--verified");
 
   const isVerified =
@@ -158,29 +162,6 @@ export default async function handler(panjy: PluginContext) {
 }
 
 
-function extractFlag(args: string[], flag: string): string | undefined {
-  const idx = args.indexOf(flag);
-  if (idx === -1) return undefined;
-  if (flag === "--nama") {
-    const parts: string[] = [];
-    args.splice(idx, 1);
-    while (args[idx] && !args[idx].startsWith("--")) {
-      parts.push(args.splice(idx, 1)[0]!);
-    }
-    return parts.join(" ") || undefined;
-  }
-  const value = args[idx + 1];
-  args.splice(idx, 2);
-  return value;
-}
-
-function normalizeJid(nowa: string): string {
-  let jid = nowa.replace(/[+ -]/g, "");
-  if (jid.startsWith("08")) jid = "62" + jid.substring(1);
-  if (!jid.endsWith("@s.whatsapp.net")) jid += "@s.whatsapp.net";
-  return jid;
-}
-
 async function addStudentByNowa(
   nowa: string,
   isVerified?: boolean,
@@ -189,13 +170,6 @@ async function addStudentByNowa(
 ) {
   const jid = normalizeJid(nowa);
   await addITLGStudent(jid, isVerified, nama, nim);
-}
-
-async function downloadCSVToString(docMess: proto.Message.IDocumentMessage) {
-  const stream = await downloadContentFromMessage(docMess, "document");
-  const chunks: Buffer[] = [];
-  for await (const chunk of stream) chunks.push(chunk);
-  return Buffer.concat(chunks).toString("utf-8");
 }
 
 async function csvParser(csv: string): Promise<number> {
