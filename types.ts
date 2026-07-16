@@ -28,6 +28,132 @@ export interface DownloadableMessage {
   mtype?: string;
 }
 
+
+export interface LunaButtonBuilder {
+  setTitle(text: string): this;
+  setSubtitle(text: string): this;
+  setBody(text: string): this;
+  setFooter(text: string): this;
+  setImage(url: string | Buffer): this;
+  addReply(text: string, id: string, options?: { icon?: string }): this;
+  addUrl(text: string, url: string, webview?: boolean, options?: { icon?: string }): this;
+  addCopy(text: string, code: string, options?: { icon?: string }): this;
+  addSelection(title: string): this;
+  makeSection(title: string): this;
+  makeRow(header: string, title: string, description: string, id: string): this;
+  toCard(): Promise<unknown>;
+  send(jid: string, options?: { quoted?: WAMessage; [key: string]: unknown }): Promise<unknown>;
+}
+
+export interface LunaButtonV2Builder {
+  setTitle(text: string): this;
+  setSubtitle(text: string): this;
+  setBody(text: string): this;
+  setFooter(text: string): this;
+  setThumbnail(url: string | Buffer): this;
+  addButton(text: string, id?: string): this;
+  send(jid: string, options?: { quoted?: WAMessage; [key: string]: unknown }): Promise<unknown>;
+}
+
+export interface LunaCarouselBuilder {
+  setBody(text: string): this;
+  setFooter(text: string): this;
+  addCard(card: unknown): this;
+  send(jid: string, options?: { quoted?: WAMessage; [key: string]: unknown }): Promise<unknown>;
+}
+
+export interface LunaMessageBuilder {
+  setType(type: "Button" | "ButtonV2" | "Carousel" | "AIRich"): this;
+  setTitle(text: string): this;
+  setSubtitle(text: string): this;
+  setBody(text: string): this;
+  setFooter(text: string): this;
+  setImage(url: string | Buffer): this;
+  setThumbnail(url: string | Buffer): this;
+  addReply(text: string, id: string, options?: { icon?: string }): this;
+  addUrl(text: string, url: string, webview?: boolean, options?: { icon?: string }): this;
+  addCopy(text: string, code: string, options?: { icon?: string }): this;
+  addButton(text: string, id?: string): this;
+  addSelection(title: string): this;
+  makeSection(title: string): this;
+  makeRow(header: string, title: string, description: string, id: string): this;
+  addCard(card: unknown): this;
+  addText(text: string): this;
+  addCode(lang: string, code: string): this;
+  addTable(data: string[][]): this;
+  addImage(url: string): this;
+  addVideo(url: string): this;
+  addProduct(data: Record<string, unknown> | Record<string, unknown>[]): this;
+  addReels(data: Record<string, unknown> | Record<string, unknown>[]): this;
+  addPost(data: Record<string, unknown> | Record<string, unknown>[]): this;
+  addSuggest(items: string[]): this;
+  addTip(text: string): this;
+  addSource(sources: [string, string, string][]): this;
+  send(): Promise<unknown>;
+}
+
+export interface LunaProductProps {
+  title: string;
+  brand: string;
+  price: string;
+  sale_price?: string;
+  product_url?: string;
+  icon_url?: string;
+  image_url?: string;
+}
+
+export interface LunaReelsProps {
+  username: string;
+  profile_url: string;
+  thumbnail: string;
+  url: string;
+  title: string;
+  like: number;
+  share: number;
+  view: number;
+  source: string;
+  verified: boolean;
+}
+
+type LunaPostSourceType = 'INSTAGRAM' | 'FACEBOOOK' | 'THREADS';
+export interface LunaPostProps {
+  profile_url: string;
+  username: string;
+  title: string;
+  subtitle: string;
+  caption: string;
+  verified: boolean;
+  url: string;
+  thumbnail: string;
+  source: LunaPostSourceType | string;
+  footer: string;
+  deeplink: string;
+  icon: string;
+  orientation: 'LANDSCAPE' | 'PORTRAIT';
+  post_type: 'PHOTO' | 'VIDEO' | string;
+  comment: number;
+  share: number;
+  like: number;
+}
+
+export interface LunaAIRichBuilder {
+  setTitle(text: string): this;
+  setFooter(text: string): this;
+  addSuggest(items: string[]): this;
+  addTip(text: string): this;
+  addText(text: string): this;
+  addProduct(data: LunaProductProps | LunaProductProps[]): this;
+  addCode(lang: string, code: string): this;
+  addTable(data: string[][]): this;
+  addSource(sources: [string, string, string][]): this;
+  addImage(url: string): this;
+  addVideo(url: string): this;
+  addReels(data: LunaReelsProps | LunaReelsProps[]): this;
+  addPost(data: LunaPostProps | LunaPostProps[]): this;
+  send(recipient: string, options?: { quoted: WAMessage }): Promise<void>;
+}
+
+
 // export interface PanjaySocket {
 //   authState: {
 //     creds: AuthenticationCreds;
@@ -85,6 +211,7 @@ export interface PanjaySocket extends WASocket {
   // Temporary cache — data sementara selama bot aktif (hilang saat restart)
   cache: Record<string, unknown>;
   downloadMediaMessage(message: unknown): Promise<Buffer>;
+  messageBuilder(jid: string, options?: { quoted?: WAMessage }): LunaMessageBuilder;
   sendImageAsSticker(
     jid: string,
     path: StickerInput,
@@ -97,6 +224,39 @@ export interface PanjaySocket extends WASocket {
     quoted?: WAMessage,
     options?: StickerOptions,
   ): Promise<Buffer | string>;
+  sendOrder(
+    jid: string,
+    orderProps: {
+      orderId: string;
+      itemCount: number;
+      status: number;
+      orderTitle: string;
+      message: string;
+      totalAmount: number;
+      totalCurrencyCode: string;
+      thumbnail?: string;
+    }
+  ): Promise<Buffer | string>;
+  sendAlbum(
+    jid: string,
+    album: {
+      image: { url: string };
+      caption?: string;
+    }[],
+    options?: { quoted?: WAMessage },
+  ): Promise<Buffer | string>;
+  sendStickerPack(
+    jid: string,
+    packProps: {
+      name: string;
+      publisher: string;
+      description?: string;
+      cover: Buffer;
+      stickers: { data: Buffer; emojis: string[] }[];
+    }
+  ): Promise<Buffer | string>;
+  getPNFromLid(m: MessageUpsert, lid: string): Promise<string>;
+  getLidFromPN(m: MessageUpsert, phoneNumber: string): Promise<string>;
 }
 
 export interface MessageUpsert {
@@ -206,6 +366,10 @@ export interface PluginContext {
     msgKey: WAMessageKey | undefined,
     tag?: string,
   ) => Promise<void>;
+  PanjayButton: () => LunaButtonBuilder;
+  PanjayButtonV2: () => LunaButtonV2Builder;
+  PanjayCarousel: () => LunaCarouselBuilder;
+  PanjayAIRich: () => LunaAIRichBuilder;
 }
 
 export interface GlobalMessages {

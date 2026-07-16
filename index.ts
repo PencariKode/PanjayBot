@@ -1,5 +1,3 @@
-
-
 // Import Module
 import {
   makeWASocket,
@@ -8,6 +6,8 @@ import {
   downloadContentFromMessage,
   getContentType,
 } from "@whiskeysockets/baileys";
+import * as baileysModule from "@whiskeysockets/baileys";
+import lunaLib from "@ryuu-reinzz/luna-lib";
 import { pino } from "pino";
 import chalk from "chalk";
 import readline from "readline";
@@ -17,11 +17,7 @@ import fs from "fs";
 import attachSticker from "./lib/sticker.ts";
 import { botConfig } from "./config.ts";
 import { usePostgresAuthState } from "./lib/usePostgresAuthState.ts";
-import type {
-  HandlerMeta,
-  MessageUpsert,
-  PanjaySocket,
-} from "./types.ts";
+import type { HandlerMeta, MessageUpsert, PanjaySocket } from "./types.ts";
 
 // Simpan ID Interval Polling
 let pollingIntervalId: NodeJS.Timeout | null = null;
@@ -49,7 +45,9 @@ async function connectToWhatsApp(): Promise<void> {
       : await useMultiFileAuthState(botConfig.whatsapp.sessionDir);
 
   const { version, isLatest } = await fetchLatestBaileysVersion();
-  console.log(`${botConfig.identity.name} Using WA v${version.join(".")}, isLatest: ${isLatest}`);
+  console.log(
+    `${botConfig.identity.name} Using WA v${version.join(".")}, isLatest: ${isLatest}`,
+  );
 
   const panjay = makeWASocket({
     logger: pino({ level: "silent" }),
@@ -63,6 +61,7 @@ async function connectToWhatsApp(): Promise<void> {
   }) as unknown as PanjaySocket;
 
   attachSticker(panjay);
+  lunaLib.addProperty(panjay, baileysModule);
 
   // startPolling(panjay)
 
@@ -136,6 +135,28 @@ async function connectToWhatsApp(): Promise<void> {
       case "documentMessage":
         mediaType = "Document";
         break;
+      case "templateButtonReplyMessage":
+        // Template button / ButtonV2-style reply → ambil selectedId sebagai command
+        body = msg.message.templateButtonReplyMessage?.selectedId ?? "";
+        break;
+      case "buttonsResponseMessage":
+        // Classic buttonsMessage reply (dipakai oleh ButtonV2 luna-lib)
+        body = msg.message.buttonsResponseMessage?.selectedButtonId ?? "";
+        break;
+      case "interactiveResponseMessage": {
+        const paramsJson =
+          msg.message.interactiveResponseMessage?.nativeFlowResponseMessage
+            ?.paramsJson;
+        if (paramsJson) {
+          try {
+            const parsed = JSON.parse(paramsJson) as { id?: string };
+            body = parsed.id ?? "";
+          } catch {
+            body = "";
+          }
+        }
+        break;
+      }
       default:
         body = "";
     }
@@ -143,15 +164,20 @@ async function connectToWhatsApp(): Promise<void> {
     panjay.downloadMediaMessage = async (message: unknown) => {
       const record =
         typeof message === "object" && message !== null
-          ? (message as { msg?: { mimetype?: string | null }; mimetype?: string | null; mtype?: string })
+          ? (message as {
+              msg?: { mimetype?: string | null };
+              mimetype?: string | null;
+              mtype?: string;
+            })
           : {};
       const mime = (record.msg || record).mimetype || "";
 
       const rawDownloadType = record.mtype
         ? record.mtype.replace(/Message/gi, "")
         : mime.split("/")[0];
-      const downloadType = (rawDownloadType ||
-        "document") as Parameters<typeof downloadContentFromMessage>[1];
+      const downloadType = (rawDownloadType || "document") as Parameters<
+        typeof downloadContentFromMessage
+      >[1];
 
       const stream = await downloadContentFromMessage(
         message as Parameters<typeof downloadContentFromMessage>[0],

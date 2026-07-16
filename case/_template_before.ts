@@ -25,7 +25,7 @@ export const info = {
 };
 
 export default async function before(ctx: PluginContext): Promise<boolean> {
-  const { body, panjay, msg, normalizedSender, panjayreply, isGroup } = ctx;
+  // const { body, panjay, msg, normalizedSender, panjayreply, isGroup } = ctx;
 
   // Contoh: AFK system menggunakan temporary cache
   // ─────────────────────────────────────────────────
@@ -50,7 +50,7 @@ export default async function before(ctx: PluginContext): Promise<boolean> {
   //   // Handle konfirmasi interaktif
   // }
 
-  console.log(panjay.cache.lol)
+  // console.log(panjay.cache.lol)
 
   return true; // Selalu lanjutkan
 }

@@ -26,6 +26,7 @@ import type {
   QuotedContactMessage,
 } from "./types.ts";
 import reactList from "./lib/reactList.ts";
+import { Button, ButtonV2, Carousel, AIRich } from "@ryuu-reinzz/luna-lib";
 
 // Track Messages
 const processedMessages = new Set<string>();
@@ -439,6 +440,19 @@ export default async function handler(
       { quoted: msg },
     );
 
+  // Factory builders luna-lib (chain methods lalu panggil .send(replyJid, { quoted: msg }))
+  const PanjayButton = () =>
+    (new (Button as unknown as new (s: unknown) => import("./types.ts").LunaButtonBuilder)(panjay));
+
+  const PanjayButtonV2 = () =>
+    (new (ButtonV2 as unknown as new (s: unknown) => import("./types.ts").LunaButtonV2Builder)(panjay));
+
+  const PanjayCarousel = () =>
+    (new (Carousel as unknown as new (s: unknown) => import("./types.ts").LunaCarouselBuilder)(panjay));
+
+  const PanjayAIRich = () =>
+    (new (AIRich as unknown as new (s: unknown) => import("./types.ts").LunaAIRichBuilder)(panjay));
+
   const PanjayReact = (emoji: string | undefined) => {
     emoji = emoji === undefined ? emoji : emoji in reactList ? reactList[emoji] : emoji;
     return panjay.sendMessage(
@@ -481,6 +495,10 @@ export default async function handler(
       commands,
       normalizedSender,
       deleteMessage,
+      PanjayButton,
+      PanjayButtonV2,
+      PanjayCarousel,
+      PanjayAIRich,
     });
     if (shouldContinue === false) return;
   }
@@ -721,5 +739,9 @@ export default async function handler(
     commands,
     normalizedSender,
     deleteMessage,
+    PanjayButton,
+    PanjayButtonV2,
+    PanjayCarousel,
+    PanjayAIRich,
   });
 }

@@ -10,6 +10,76 @@ declare module "fluent-ffmpeg" {
   export default function ffmpeg(input: string): FfmpegCommand;
 }
 
+declare module "@ryuu-reinzz/luna-lib" {
+  export class Button {
+    constructor(socket: import("./types.ts").PanjaySocket);
+    setTitle(text: string): this;
+    setSubtitle(text: string): this;
+    setBody(text: string): this;
+    setFooter(text: string): this;
+    setImage(url: string | Buffer): this;
+    addReply(text: string, id: string, options?: { icon?: string }): this;
+    addUrl(text: string, url: string, webview?: boolean, options?: { icon?: string }): this;
+    addCopy(text: string, code: string, options?: { icon?: string }): this;
+    addSelection(title: string): this;
+    makeSection(title: string): this;
+    makeRow(header: string, title: string, description: string, id: string): this;
+    toCard(): Promise<unknown>;
+    send(jid: string, options?: { quoted?: unknown; [key: string]: unknown }): Promise<unknown>;
+  }
+
+  export class ButtonV2 {
+    constructor(socket: import("./types.ts").PanjaySocket);
+    setTitle(text: string): this;
+    setSubtitle(text: string): this;
+    setBody(text: string): this;
+    setFooter(text: string): this;
+    setThumbnail(url: string | Buffer): this;
+    addButton(text: string, id?: string): this;
+    send(jid: string, options?: { quoted?: unknown; [key: string]: unknown }): Promise<unknown>;
+  }
+
+  export class Carousel {
+    constructor(socket: import("./types.ts").PanjaySocket);
+    setBody(text: string): this;
+    setFooter(text: string): this;
+    addCard(card: unknown): this;
+    send(jid: string, options?: { quoted?: unknown; [key: string]: unknown }): Promise<unknown>;
+  }
+
+  
+
+  export class AIRich {
+    constructor(socket: import("./types.ts").PanjaySocket);
+    setType(type: string): this;
+    setTitle(text: string): this;
+    setFooter(text: string): this;
+    addText(text: string): this;
+    addSuggest(items: string[]): this;
+    addTip(text: string): this;
+    addCode(lang: string, code: string): this;
+    addTable(data: string[][]): this;
+    addImage(url: string): this;
+    addVideo(url: string): this;
+    addSource(sources: [string, string, string][]): this;
+    addProduct(data: import("./types.ts").LunaProductProps | import("./types.ts").LunaProductProps[]): this;
+    addReels(data: import("./types.ts").LunaReelsProps | import("./types.ts").LunaReelsProps[]): this;
+    addPost(data: import("./types.ts").LunaPostProps | import("./types.ts").LunaPostProps[]): this;
+    send(jid: string, options?: { quoted?: unknown; [key: string]: unknown }): Promise<unknown>;
+  }
+
+  interface LunaLibDefault {
+    addProperty(socket: import("./types.ts").PanjaySocket, baileysModule: unknown): void;
+    Button: typeof Button;
+    ButtonV2: typeof ButtonV2;
+    Carousel: typeof Carousel;
+    AIRich: typeof AIRich;
+  }
+
+  const lunaLib: LunaLibDefault;
+  export default lunaLib;
+}
+
 declare module "node-webpmux" {
   export interface WebPFrame {
     buffer?: Buffer;
