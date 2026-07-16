@@ -15,6 +15,7 @@ import { botConfig } from "./config.ts";
 import { formatCommandResponse } from "./lib/response.ts";
 import { getDataStore } from "./lib/dataStore.ts";
 import type {
+  BeforeHandler,
   HandlerMeta,
   MessageUpsert,
   PanjaySocket,
@@ -95,17 +96,37 @@ fs.watchFile(pluginStatePath, { interval: 1000 }, async () => {
 const caseDir = path.join(__dirname, "case");
 
 let plugins: PluginHandler[] = [];
+let beforePlugins: BeforeHandler[] = [];
 const commands = new Map<string, PluginCommand>();
 const categories = new Map<string, PluginInfo[]>();
 
 async function loadPlugins(): Promise<void> {
   plugins = [];
+  beforePlugins = [];
   commands.clear();
   categories.clear();
 
   const state = readPluginState();
   const disableList = state.disable || [];
   const maintenanceList = state.maintenance || [];
+
+  // Load before plugins dari root case/ directory
+  for (const entry of fs.readdirSync(caseDir)) {
+    const entryPath = path.join(caseDir, entry);
+    if (fs.statSync(entryPath).isDirectory()) continue;
+    if (!entry.endsWith(".ts") || !entry.startsWith("_")) continue;
+    try {
+      const mod: PluginModule = await import(
+        `./case/${entry}?update=${Date.now()}`
+      );
+      if (mod.default) {
+        beforePlugins.push(mod.default as unknown as BeforeHandler);
+        console.log(chalk.cyan(`  [BEFORE] ${entry}`));
+      }
+    } catch (err) {
+      console.error(chalk.red(`❌ Gagal load before plugin ${entry}:`), err);
+    }
+  }
 
   const folders = fs.readdirSync(caseDir);
 
@@ -123,6 +144,15 @@ async function loadPlugins(): Promise<void> {
       const module: PluginModule = await import(
         `./case/${folder}/${file}?update=${Date.now()}`
       );
+
+      // Before plugin (file dimulai underscore)
+      if (file.startsWith("_")) {
+        if (module.default) {
+          beforePlugins.push(module.default as unknown as BeforeHandler);
+          console.log(chalk.cyan(`  [BEFORE] ${folder}/${file}`));
+        }
+        continue;
+      }
 
       const plugin = module.default;
       const info = module.info;
@@ -352,6 +382,9 @@ export default async function handler(
     }
   }
 
+  // Inisialisasi temporary cache
+  panjay.cache = panjay.cache ?? {};
+
   let usedPrefix: string | null = null;
   for (const pre of globalThis.prefix) {
     if (body.startsWith(pre)) {
@@ -359,7 +392,6 @@ export default async function handler(
       break;
     }
   }
-  if (!usedPrefix && !globalThis.noprefix) return;
 
   const args = usedPrefix
     ? body.slice(usedPrefix.length).trim().split(" ")
@@ -415,6 +447,46 @@ export default async function handler(
       { quoted: msg },
     );
   }
+
+  // [ ===== Plugin Before ===== ]
+  for (const bp of beforePlugins) {
+    const shouldContinue = await bp({
+      body,
+      command,
+      usedPrefix,
+      args,
+      q,
+      panjay,
+      m,
+      msg,
+      mediaType,
+      len,
+      replyJid,
+      senderJid,
+      panjayreply,
+      PanjayText,
+      PanjayInvalid,
+      PanjayWait,
+      PanjayVideo,
+      PanjayImage,
+      PanjayAudio,
+      PanjayFile,
+      PanjayReact,
+      isGroup,
+      isAdmin,
+      isBotAdmin,
+      isPremium,
+      isPanjay,
+      plugins,
+      commands,
+      normalizedSender,
+      deleteMessage,
+    });
+    if (shouldContinue === false) return;
+  }
+
+  // Cek prefix — setelah before plugins, sebelum command handler
+  if (!usedPrefix && !globalThis.noprefix) return;
 
   // Label Menu
   type PluginLabel = "Public" | "Owner" | "Premium" | "Admin" | "BotAdmin" | "Group" | "Private" | "ITLG";
@@ -619,6 +691,7 @@ export default async function handler(
   if (!isPanjay && (info.group && info.itlg && !isITLGGroup)) return PanjayText(globalThis.mess.itlggroup);
 
   await execute({
+    body,
     command,
     usedPrefix,
     args,

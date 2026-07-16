@@ -49,7 +49,8 @@ export default async function handler(panjy: PluginContext) {
   // console.log(msg.message?.extendedTextMessage?.contextInfo);
   // console.log("TESTING", msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.documentWithCaptionMessage?.message?.documentMessage);
 
-  console.log("TESTING", q, q.length, msg);
+  // console.log("TESTING", q, q.length, msg, panjay.cache.lol);
+  panjay.cache.lol = {q};
   // await panjay.sendMessage(
   //   replyJid,
   //   {

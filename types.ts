@@ -82,6 +82,8 @@ export interface DownloadableMessage {
 //   ): Promise<unknown>;
 // }
 export interface PanjaySocket extends WASocket {
+  // Temporary cache — data sementara selama bot aktif (hilang saat restart)
+  cache: Record<string, unknown>;
   downloadMediaMessage(message: unknown): Promise<Buffer>;
   sendImageAsSticker(
     jid: string,
@@ -139,6 +141,17 @@ export interface PluginModule {
   info?: PluginInfo;
 }
 
+// Before Plugin — dijalankan sebelum command matching, return false untuk hentikan pipeline
+export type BeforeHandler = (context: PluginContext) => Awaitable<boolean>;
+
+export interface BeforePluginModule {
+  default?: BeforeHandler;
+  info?: {
+    name: string;
+    description?: string;
+  };
+}
+
 export interface QuotedContactMessage {
   key: {
     participant: string;
@@ -156,6 +169,7 @@ export interface QuotedContactMessage {
 }
 
 export interface PluginContext {
+  body: string;
   command: string;
   usedPrefix: string | null;
   args: string[];
