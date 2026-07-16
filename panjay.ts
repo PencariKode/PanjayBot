@@ -122,7 +122,7 @@ async function loadPlugins(): Promise<void> {
       );
       if (mod.default) {
         beforePlugins.push(mod.default as unknown as BeforeHandler);
-        console.log(chalk.cyan(`  [BEFORE] ${entry}`));
+        // console.log(chalk.cyan(`  [BEFORE] ${entry}`));
       }
     } catch (err) {
       console.error(chalk.red(`❌ Gagal load before plugin ${entry}:`), err);
@@ -150,7 +150,7 @@ async function loadPlugins(): Promise<void> {
       if (file.startsWith("_")) {
         if (module.default) {
           beforePlugins.push(module.default as unknown as BeforeHandler);
-          console.log(chalk.cyan(`  [BEFORE] ${folder}/${file}`));
+          // console.log(chalk.cyan(`  [BEFORE] ${folder}/${file}`));
         }
         continue;
       }
@@ -357,7 +357,6 @@ export default async function handler(
 
   //ITLG
   const isITLGGroup = await dataStore.isITLGGroup(replyJid);
-  const isItlgStudent = await dataStore.isITLGStudent(normalizedSender);
 
   // Creator
   const isPanjay = msg.key.fromMe ? msg.key.fromMe : (await dataStore.isCreator(normalizedSender));
@@ -505,153 +504,6 @@ export default async function handler(
 
   // Cek prefix — setelah before plugins, sebelum command handler
   if (!usedPrefix && !globalThis.noprefix) return;
-
-  // Label Menu
-  type PluginLabel = "Public" | "Owner" | "Premium" | "Admin" | "BotAdmin" | "Group" | "Private" | "ITLG";
-
-  function getLabel(info: PluginInfo): PluginLabel {
-    if (info.owner) return "Owner";
-    if (info.premium) return "Premium";
-    if (info.admin) return "Admin";
-    if (info.botAdmin) return "BotAdmin";
-    if (info.group) return "Group";
-    if (info.private) return "Private";
-    if (info.itlg) return "ITLG";
-    return "Public";
-  }
-
-  const labelPriority: Record<PluginLabel, number> = {
-    Public: 0,
-    Owner: 1,
-    ITLG: 2,
-    Premium: 3,
-    Admin: 4,
-    BotAdmin: 5,
-    Group: 6,
-    Private: 7,
-  };
-
-  // All Menu
-  if (command === "allmenu") {
-    let text = globalThis.panjaymenu;
-    console.log("ANJAY", isItlgStudent)
-
-    for (let [cat, list] of categories) {
-      let visible = list.filter((i) => !i.hidden);
-      if (!isItlgStudent && cat.toLowerCase() === "itlg") continue;
-      console.log(cat)
-      if (visible.length === 0) continue;
-
-      text += `\n╭─〔 *${cat.toUpperCase()}* 〕\n`;
-
-      visible
-        .sort((a, b) => {
-          const labelA = getLabel(a);
-          const labelB = getLabel(b);
-
-          const priorityDiff = labelPriority[labelA] - labelPriority[labelB];
-
-          if (priorityDiff !== 0) return priorityDiff;
-
-          return a.name.localeCompare(b.name);
-        })
-        .forEach((item) => {
-          const label = getLabel(item);
-          let tag = label !== "Public" ? ` [${label}]` : "";
-
-          if (item.maintenance) tag += " [MTNC]";
-          if (item.enabled === false) tag += " [OFF]";
-
-          item.menu
-            .sort((a, b) => a.localeCompare(b))
-            .forEach((cmd) => {
-              text += `│ › .${cmd.toLowerCase()}${tag}\n`;
-            });
-        });
-
-      text += "╰────────────\n";
-    }
-
-    await panjay.sendMessage(
-      replyJid,
-      {
-        image: MenuImage,
-        caption: `${text}\n╰─〔 *${botConfig.branding.footer}* 〕`,
-        mentions: [normalizedSender],
-      },
-      { quoted: msg },
-    );
-  }
-
-  // Category Menu
-  if (command === "menu" || command === "help") {
-    const casePath = path.join(__dirname, "case");
-    const folders = fs
-      .readdirSync(casePath)
-      .filter((v) => fs.statSync(path.join(casePath, v)).isDirectory());
-
-    let text = globalThis.panjaymenu || "╭─〔 *DAFTAR MENU* 〕\n";
-
-    text += "\n╭─〔 *AVAILABLE CATEGORIES* 〕\n";
-
-    folders
-      .sort((a, b) => a.localeCompare(b))
-      .forEach((folder) => {
-        if ((folder.toLowerCase() === "itlg") && !isItlgStudent) return;
-        text += `│ › .${folder.toLowerCase()}menu\n`;
-      });
-
-    text += "╰────────────\n";
-
-    await panjay.sendMessage(
-      replyJid,
-      {
-        image: MenuImage,
-        caption: `${text}\n╰─〔 *${botConfig.branding.footer}* 〕`,
-        mentions: [normalizedSender],
-      },
-      { quoted: msg },
-    );
-  }
-
-  // Category Menu Dynamic
-  if (command.endsWith("menu") && command !== "allmenu") {
-    const casePath = path.join(process.cwd(), "case");
-
-    const folders = fs
-      .readdirSync(casePath)
-      .filter((f) => fs.statSync(path.join(casePath, f)).isDirectory());
-
-    const kategori = command.replace("menu", "").toLowerCase();
-
-    if (!folders.includes(kategori)) return;
-
-    let text = `╭─〔 *${kategori.toUpperCase()} MENU* 〕\n`;
-
-    const list = categories.get(kategori) || [];
-
-    const visible = list.filter((i) => !i.hidden);
-
-    visible
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .forEach((item) => {
-        const label = getLabel(item);
-        let tag = label !== "Public" ? ` [${label}]` : "";
-
-        if (item.maintenance) tag += " [Main]";
-        if (item.enabled === false) tag += " [Off]";
-
-        item.menu
-          .sort((a, b) => a.localeCompare(b))
-          .forEach((cmd) => {
-            text += `│ › .${cmd.toLowerCase()}${tag}\n`;
-          });
-      });
-
-    text += "╰────────────\n";
-
-    await panjayreply(`${text}\n╰─〔 *${botConfig.branding.footer}* 〕`);
-  }
 
   if (!commands.has(command)) {
     /*return PanjayText(
