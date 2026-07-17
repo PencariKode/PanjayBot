@@ -25,22 +25,20 @@ export const info: PluginInfo = {
 
 type PluginLabel =
   | "Public"
-  | "Owner"
-  | "Premium"
-  | "Admin"
-  | "BotAdmin"
-  | "Group"
-  | "Private"
-  | "ITLG";
+  | "🜲"
+  | "℗"
+  | "🅐"
+  | "〠"
+  | "🄶"
+  | "⎗";
 
 function getLabel(info: PluginInfo): PluginLabel {
-  if (info.owner) return "Owner";
-  if (info.premium) return "Premium";
-  if (info.admin) return "Admin";
-  if (info.botAdmin) return "BotAdmin";
-  if (info.group) return "Group";
-  if (info.private) return "Private";
-  if (info.itlg) return "ITLG";
+  if (info.owner) return "🜲";
+  if (info.premium) return "℗";
+  if (info.admin) return "🅐";
+  if (info.botAdmin) return "〠";
+  if (info.group) return "🄶";
+  if (info.private) return "⎗";
   return "Public";
 }
 
@@ -114,7 +112,8 @@ export default async function handler(panjy: PluginContext) {
             });
         });
 
-      text += "╰────────────\n";
+      // text += "╰────────────\n";
+      text += `│`;
     }
 
     await panjay.sendMessage(
@@ -142,7 +141,8 @@ export default async function handler(panjy: PluginContext) {
         text += `│ › .${folder.toLowerCase()}menu\n`;
       });
 
-    text += "╰────────────\n";
+    // text += "╰────────────\n";
+    text += `│`;
 
     await panjay.sendMessage(
       replyJid,
@@ -174,7 +174,7 @@ export default async function handler(panjy: PluginContext) {
       .sort((a, b) => a.name.localeCompare(b.name))
       .forEach((item) => {
         const label = getLabel(item);
-        let tag = label !== "Public" ? ` [${label}]` : "";
+        let tag = label !== "Public" ? ` 【${label}】` : "";
 
         if (item.maintenance) tag += " [Main]";
         if (item.enabled === false) tag += " [Off]";
@@ -185,8 +185,8 @@ export default async function handler(panjy: PluginContext) {
             text += `│ › .${cmd.toLowerCase()}${tag}\n`;
           });
       });
-
-    text += "╰────────────\n";
+    text += `│`
+    // text += "╰────────────\n";
 
     await panjayreply(`${text}\n╰─〔 *${botConfig.branding.footer}* 〕`);
     return;
