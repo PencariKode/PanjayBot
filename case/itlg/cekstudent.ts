@@ -25,6 +25,7 @@ export default async function handler(panjy: PluginContext) {
     panjayreply,
     PanjayInvalid,
     PanjayReact,
+    msg
   } = panjy;
 
   const idn = q.replace(/\s+/g, "");
@@ -68,7 +69,7 @@ export default async function handler(panjy: PluginContext) {
     
     text += "╰────────────\n";
 
-    await panjay.sendMessage(replyJid, { text: `${text}\n╰─〔 *${botConfig.branding.footer}* 〕`, mentions: students.map(s => s.jid) });
+    await panjay.sendMessage(replyJid, { text: `${text}\n╰─〔 *${botConfig.branding.footer}* 〕`, mentions: students.map(s => s.jid) }, {quoted: msg});
   } else {
     const stu = await findITLGStudentByJid(normalizeJid(idn));
     if (!stu) return PanjayInvalid({

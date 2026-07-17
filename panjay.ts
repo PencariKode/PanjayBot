@@ -12,7 +12,7 @@ import chalk from "chalk";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { botConfig } from "./config.ts";
-import { formatCommandResponse } from "./lib/response.ts";
+import { CommandResponseOptions, formatCommandResponse } from "./lib/response.ts";
 import { getDataStore } from "./lib/dataStore.ts";
 import type {
   BeforeHandler,
@@ -413,15 +413,15 @@ export default async function handler(
     );
   }
 
-  const PanjayInvalid = (options: Parameters<typeof formatCommandResponse>[0], react?: boolean) => {
-    PanjayText(
+  const PanjayInvalid = (options: CommandResponseOptions, react?: boolean) => {
+    if (react) PanjayReact("❌");
+    return PanjayText(
       formatCommandResponse({
         prefix: usedPrefix ?? "",
         command,
         ...options,
       }),
     );
-    if (react) PanjayReact("❌");
   }
 
   const PanjayWait = () => panjayreply(globalThis.mess.wait);

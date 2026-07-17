@@ -34,15 +34,29 @@ export interface LunaButtonBuilder {
   setSubtitle(text: string): this;
   setBody(text: string): this;
   setFooter(text: string): this;
-  setImage(url: string | Buffer): this;
+  setVideo(url: string | Buffer, options?: Record<string, unknown>): this;
+  setImage(url: string | Buffer, options?: Record<string, unknown>): this;
+  setDocument(url: string | Buffer, options?: Record<string, unknown>): this;
+  setMedia(obj: Record<string, unknown>): this;
+  clearButtons(): this;
+  setParams(obj: Record<string, unknown>): this;
+  addButton(name: string, params: {display_text: string; id: string} | string): this;
   addReply(text: string, id: string, options?: { icon?: string }): this;
   addUrl(text: string, url: string, webview?: boolean, options?: { icon?: string }): this;
   addCopy(text: string, code: string, options?: { icon?: string }): this;
+  addCall(text: string, id: string, options: Record<string, unknown>): this;
+  addReminder(text: string, id: string, options: Record<string, unknown>): this;
+  addCancelReminder(text: string, id: string, options: Record<string, unknown>): this;
+  addAddress(text: string, id: string, options: Record<string, unknown>): this;
+  addLocation(options: Record<string, unknown>): this;
   addSelection(title: string): this;
   makeSection(title: string): this;
   makeRow(header: string, title: string, description: string, id: string): this;
   toCard(): Promise<unknown>;
-  send(jid: string, options?: { quoted?: WAMessage; [key: string]: unknown }): Promise<unknown>;
+  setContextInfo(obj: Record<string, unknown>): this;
+  addPayload(obj: Record<string, unknown>): this;
+  build(jid: string, options?: { quoted?: WAMessage;[key: string]: unknown }): Promise<unknown>;
+  send(jid: string, options?: { quoted?: WAMessage;[key: string]: unknown }): Promise<unknown>;
 }
 
 export interface LunaButtonV2Builder {
@@ -52,14 +66,22 @@ export interface LunaButtonV2Builder {
   setFooter(text: string): this;
   setThumbnail(url: string | Buffer): this;
   addButton(text: string, id?: string): this;
-  send(jid: string, options?: { quoted?: WAMessage; [key: string]: unknown }): Promise<unknown>;
+  addRawButton(button: { buttonId: string; buttonText: {displayText: string}, type: number}): this;
+  setContextInfo(obj: Record<string, unknown>): this;
+  addPayload(obj: Record<string, unknown>): this;
+  setMedia(obj: Record<string, unknown>): this;
+  build(jid: string, options?: { quoted?: WAMessage;[key: string]: unknown }): Promise<unknown>;
+  send(jid: string, options?: { quoted?: WAMessage;[key: string]: unknown }): Promise<unknown>;
 }
 
 export interface LunaCarouselBuilder {
   setBody(text: string): this;
   setFooter(text: string): this;
   addCard(card: unknown): this;
-  send(jid: string, options?: { quoted?: WAMessage; [key: string]: unknown }): Promise<unknown>;
+  setContextInfo(obj: Record<string, unknown>): this;
+  addPayload(obj: Record<string, unknown>): this;
+  build(jid: string, options?: { quoted?: WAMessage;[key: string]: unknown }): Promise<unknown>;
+  send(jid: string, options?: { quoted?: WAMessage;[key: string]: unknown }): Promise<unknown>;
 }
 
 export interface LunaMessageBuilder {
@@ -70,6 +92,8 @@ export interface LunaMessageBuilder {
   setFooter(text: string): this;
   setImage(url: string | Buffer): this;
   setThumbnail(url: string | Buffer): this;
+  setContextInfo(obj: Record<string, unknown>): this;
+  addPayload(obj: Record<string, unknown>): this;
   addReply(text: string, id: string, options?: { icon?: string }): this;
   addUrl(text: string, url: string, webview?: boolean, options?: { icon?: string }): this;
   addCopy(text: string, code: string, options?: { icon?: string }): this;
@@ -89,7 +113,7 @@ export interface LunaMessageBuilder {
   addSuggest(items: string[]): this;
   addTip(text: string): this;
   addSource(sources: [string, string, string][]): this;
-  send(): Promise<unknown>;
+  send(options?: unknown): Promise<unknown>;
 }
 
 export interface LunaProductProps {
@@ -136,21 +160,27 @@ export interface LunaPostProps {
   like: number;
 }
 
+type NestedStringArray = string | NestedStringArray[];
 export interface LunaAIRichBuilder {
   setTitle(text: string): this;
   setFooter(text: string): this;
+  setContextInfo(obj: Record<string, unknown>): this;
+  addPayload(obj: Record<string, unknown>): this;
+  addSubmessage(submessage: Record<string, unknown>[]): this;
+  addSection(section: Record<string, unknown>[]): this;
   addSuggest(items: string[]): this;
   addTip(text: string): this;
-  addText(text: string): this;
+  addText(text: string, options?: { hyperlink: boolean; citation: boolean; latex: boolean}): this;
   addProduct(data: LunaProductProps | LunaProductProps[]): this;
   addCode(lang: string, code: string): this;
-  addTable(data: string[][]): this;
+  addTable(data: NestedStringArray[]): this;
   addSource(sources: [string, string, string][]): this;
   addImage(url: string): this;
   addVideo(url: string): this;
   addReels(data: LunaReelsProps | LunaReelsProps[]): this;
   addPost(data: LunaPostProps | LunaPostProps[]): this;
-  send(recipient: string, options?: { quoted: WAMessage }): Promise<void>;
+  build(recipient: string, options?: { forwarded: boolean; includesUnifiedResponse: boolean; includesSubmessages: boolean; quoted: WAMessage }): Promise<void>;
+  send(recipient: string, options?: { forwarded: boolean; includesUnifiedResponse: boolean; includesSubmessages: boolean; quoted: WAMessage }): Promise<void>;
 }
 
 
