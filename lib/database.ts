@@ -72,19 +72,38 @@ export async function addITLGStudent(
   name?: string | null,
   nim?: string | null,
 ): Promise<void> {
-  await prisma.itlgStudent.upsert({
-    where: { jid },
-    update: {
-      ...(isVerified !== undefined ? { isVerified } : {}),
-      ...(name !== undefined ? { name } : {}),
-      ...(nim !== undefined ? { nim } : {}),
-    },
-    create: {
-      jid,
-      isVerified: isVerified ?? false,
-      name: name ?? null,
-      nim: nim ?? null,
-    },
+  await prisma.$transaction(async (tx) => {
+    const currentStudent = await tx.itlgStudent.findUnique({ where: { jid } });
+
+    const targetNim = nim !== undefined ? nim : currentStudent?.nim;
+    const targetVerified = isVerified !== undefined ? isVerified : (currentStudent?.isVerified ?? false);
+
+    if (targetVerified && targetNim) {
+      const existingVerified = await tx.itlgStudent.findFirst({
+        where: {
+          nim: targetNim,
+          isVerified: true,
+          NOT: { jid }, 
+        },
+      });
+
+      if (existingVerified) throw new Error(`NIM ${targetNim} sudah digunakan oleh mahasiswa terverifikasi lain.`);
+    }
+
+    await tx.itlgStudent.upsert({
+      where: { jid },
+      update: {
+        ...(isVerified !== undefined ? { isVerified } : {}),
+        ...(name !== undefined ? { name } : {}),
+        ...(nim !== undefined ? { nim } : {}),
+      },
+      create: {
+        jid,
+        isVerified: isVerified ?? false,
+        name: name ?? null,
+        nim: nim ?? null,
+      },
+    });
   });
 }
 

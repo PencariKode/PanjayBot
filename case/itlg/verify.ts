@@ -53,7 +53,7 @@ export default async function handler(panjy: PluginContext) {
     console.error(`[ITLG Plugin Error]:`, error);
     return PanjayInvalid({
       title: `GAGAL ${actionText.toUpperCase()}`,
-      message: `Gagal melakukan ${actionText} pada nomor HP ${phoneNumber}`,
+      message: `Gagal melakukan ${actionText} pada nomor HP ${phoneNumber}. Detail: ${error instanceof Error ? error.message : "Terjadi kesalahan internal"}`,
       usage: `${command} <no hp>`,
       command: `${command} 6287869164526`,
     });
