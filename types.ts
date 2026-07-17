@@ -342,7 +342,7 @@ export interface PluginContext {
   senderJid: string | null;
   panjayreply: (text: string) => Promise<unknown>;
   PanjayText: (text: string) => Promise<unknown>;
-  PanjayInvalid: (options: CommandResponseOptions) => Promise<unknown>;
+  PanjayInvalid: (options: CommandResponseOptions, react?: boolean) => Promise<unknown>;
   PanjayWait: () => Promise<unknown>;
   PanjayVideo: (url: string, caption?: string) => Promise<unknown>;
   PanjayImage: (url: string, caption?: string) => Promise<unknown>;
@@ -352,7 +352,7 @@ export interface PluginContext {
     fileName: string,
     mime: string,
   ) => Promise<unknown>;
-  PanjayReact: (emoji: string | undefined) => Promise<unknown>;
+  PanjayReact: (emoji: string | undefined) => Promise<WAMessage | undefined>;
   mediaType: string | null;
   isGroup: boolean;
   isAdmin: boolean;

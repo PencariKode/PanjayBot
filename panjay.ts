@@ -404,7 +404,16 @@ export default async function handler(
   const PanjayText = (text: string) =>
     panjay.sendMessage(replyJid, { text }, { quoted: msg });
 
-  const PanjayInvalid = (options: Parameters<typeof formatCommandResponse>[0]) =>
+  const PanjayReact = (emoji: string | undefined) => {
+    emoji = emoji === undefined ? emoji : emoji in reactList ? reactList[emoji] : emoji;
+    return panjay.sendMessage(
+      replyJid,
+      { react: { text: emoji ?? "", key: msg.key } },
+      { quoted: msg },
+    );
+  }
+
+  const PanjayInvalid = (options: Parameters<typeof formatCommandResponse>[0], react?: boolean) => {
     PanjayText(
       formatCommandResponse({
         prefix: usedPrefix ?? "",
@@ -412,6 +421,8 @@ export default async function handler(
         ...options,
       }),
     );
+    if (react) PanjayReact("❌");
+  }
 
   const PanjayWait = () => panjayreply(globalThis.mess.wait);
 
@@ -451,15 +462,6 @@ export default async function handler(
 
   const PanjayAIRich = () =>
     (new (AIRich as unknown as new (s: unknown) => import("./types.ts").LunaAIRichBuilder)(panjay));
-
-  const PanjayReact = (emoji: string | undefined) => {
-    emoji = emoji === undefined ? emoji : emoji in reactList ? reactList[emoji] : emoji;
-    return panjay.sendMessage(
-      replyJid,
-      { react: { text: emoji ?? "", key: msg.key } },
-      { quoted: msg },
-    );
-  }
 
   // [ ===== Plugin Before ===== ]
   for (const bp of beforePlugins) {
